@@ -83,3 +83,12 @@ poetry run python manage.py runserver
 - docs/architecture.md — архитектура
 - docs/api.md — API
 - docs/decisions/ — принятые решения
+
+## Архитектурные решения
+
+Принятые решения фиксируются в `docs/decisions/`:
+
+- `0001-use-poetry.md` — управление зависимостями через Poetry
+- `0002-session-cart.md` — session-based корзина для web-интерфейса
+- `0003-jwt-for-api.md` — JWT для REST API
+- `0004-order-transaction.md` — транзакционное создание заказа
