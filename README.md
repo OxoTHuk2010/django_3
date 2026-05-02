@@ -1,5 +1,18 @@
-# django shop project
-Структура проекта:
+# MyShop
+
+MyShop - учебный проект интернет магазина на Django c web-интерфейсом, REST API, JWT-авторизацией и Swagger-документацией
+
+## Cтек
+
+- Python 3.12
+- Django
+- Django REST Framework
+- Simple JWT
+- drf-spectacular
+- PostgreSQL
+- Poetry
+
+# Структура проекта:
 /
 ├── src/
 │   ├── config/
@@ -49,3 +62,22 @@
 ├── poetry.lock
 ├── manage.py
 └── README.md
+
+## Локальный запуск
+
+```bash
+poetry install
+cp .env.example .env
+poetry run python manage.py migrate
+poetry run python manage.py runserver
+```
+
+
+## Документация
+
+Дополнительная документация:
+
+- docs/development.md — как разрабатывать
+- docs/architecture.md — архитектура
+- docs/api.md — API
+- docs/decisions/ — принятые решения
