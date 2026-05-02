@@ -40,7 +40,7 @@
 │
 ├── tests/
 ├── docker/
-├── .env.example
+├── env.example
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── docker-compose.yml
