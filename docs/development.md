@@ -52,3 +52,23 @@ DJANGO_SETTINGS_MODULE=config.settings.local
 - DB_*
 
 См. .env.example
+
+## Pre-commit
+
+Установить:
+
+```bash
+poetry run pre-commit install
+```
+
+Запустить вручную:
+```bash
+poetry run pre-commit run --all-files
+```
+
+Pre-commit выполняет:
+
+- линтинг (ruff)
+- форматирование (ruff-format)
+- проверку yaml/json
+- удаление лишних пробелов
