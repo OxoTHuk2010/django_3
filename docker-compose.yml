@@ -8,15 +8,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
     restart: unless-stopped
 
   web:
-    build: .
-    expose:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
       - "8000:8000"
     environment:
       DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE}
@@ -28,7 +30,9 @@ services:
       DB_HOST: db
       DB_PORT: ${DB_PORT}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     restart: unless-stopped
 
 volumes:
