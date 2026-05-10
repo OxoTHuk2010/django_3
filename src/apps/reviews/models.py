@@ -34,7 +34,7 @@ class Review(TimeStampedModel):
         HIDDEN = "hidden", "Скрыт"
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MOODEL,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="reviews",
         verbose_name="Пользователь",
