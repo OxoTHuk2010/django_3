@@ -6,7 +6,23 @@ Roadmap фиксирует текущий прогресс и следующие
 
 - `[x]` сделано
 - `[ ]` не сделано
-- `[!]` требует внимания перед переходом дальше
+- `[!]` требует решения перед переходом дальше
+
+## Последняя проверка
+
+Дата проверки: 2026-05-11.
+
+Команды, выполненные по текущим файлам проекта:
+
+- [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит, `System check identified no issues (0 silenced)`.
+- [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит, `All checks passed!`.
+- [!] `.venv\Scripts\python.exe -m pytest --collect-only -q -p no:cacheprovider` — тесты не найдены, `no tests collected`.
+- [x] `docker compose up -d --build` — контейнеры пересобраны и запущены.
+- [x] `docker compose ps` — `db` healthy, `web` up, порт `8000` опубликован.
+- [x] `docker compose exec -T web python manage.py check` — проходит внутри контейнера.
+- [!] `docker compose exec -T web python manage.py makemigrations --check --dry-run` — показывает несозданные миграции для `catalog`, `orders`, `payments`, `reviews`, `cart`, `users`.
+
+Правило для следующих проверок: миграции и состояние БД проверять через актуально пересобранный `docker compose`, потому что локальная БД на `localhost:5432` может не отражать состояние контейнерной среды.
 
 ## Этап 0. Цель проекта
 
@@ -31,6 +47,7 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] Добавлен custom user model.
 - [x] Добавлены Swagger/OpenAPI URLs.
 - [x] Добавлен JWT token refresh endpoint.
+- [x] `manage.py check` проходит локально и внутри Docker.
 
 ## Этап 3. Docker и PostgreSQL
 
@@ -42,52 +59,66 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] Web service ждёт healthy DB.
 - [x] Порт `8000` опубликован наружу.
 - [x] При старте web выполняет `migrate` и запускает `runserver`.
+- [x] После `docker compose up -d --build` контейнер `web` остаётся в состоянии `Up`.
 
 ## Этап 4. Базовые модели
 
 Статус: в работе.
 
-### Уже сделано
+### Фактически сделано
 
-- [x] Добавлены базовые abstract-модели в `common`.
-- [x] Начата модель `users.User`.
-- [x] Начаты модели каталога: `Category`, `Product`, `ProductImage`.
-- [x] Начаты модели заказов: `Order`, `OrderItem`.
-- [x] Начата модель отзывов: `Review`.
-- [x] Начата модель платежей: `Payment`.
+- [x] Добавлены базовые abstract-модели в `common`: `TimeStampedModel`, `ActiveModel`, `SoftDeleteModel`.
+- [x] Реализована custom-модель пользователя `users.User` с email как основным логином.
+- [x] Реализованы модели каталога: `Category`, `Product`, `ProductImage`.
+- [x] В каталоге поле описания называется `description`.
+- [x] Реализованы модели заказов: `Order`, `OrderItem`.
+- [x] Реализованы модели отзывов: `Review`.
+- [x] В `Review` используется `settings.AUTH_USER_MODEL`.
+- [x] В `Review` есть ограничение рейтинга `1..5`.
+- [x] В `Review` есть ограничение уникальности пары `user + product`.
+- [x] Реализованы модели платежей: `Payment` со статусами, суммой, провайдером и внешним id.
+- [x] Реализованы DB-модели корзины: `Cart`, `CartItem`.
+- [x] Добавлены constraints для цен, количества, рейтинга и сумм.
 - [x] Добавлен ADR `0005-domain-model.md`.
+- [x] `ruff check` проходит.
+- [x] `manage.py check` проходит локально и внутри Docker.
 
-### Нужно сделать до закрытия этапа
+### Что мешает закрыть этап 4
 
-- [ ] Проверить, что `poetry run python manage.py check` проходит по текущим файлам.
-- [ ] Исправить текущую ошибку в `reviews.models`: `AUTH_USER_MOODEL` → `AUTH_USER_MODEL`, если она ещё актуальна.
-- [ ] Проверить `reviews.Review.user`: связь должна использовать `settings.AUTH_USER_MODEL`.
-- [ ] Проверить `reviews.Review`: рейтинг 1..5, уникальность `user + product`, связь с `Product`.
-- [ ] Проверить `payments.Payment`: связь с заказом, статусы, сумма, provider, внешний id.
-- [ ] Исправить опечатки в моделях до миграций, например `descriotion` → `description`, если она ещё есть.
-- [ ] Добавить constraints для цен, количества и рейтинга.
-- [ ] Решить конфликт по корзине: session cart или database-backed cart.
-- [ ] Синхронизировать ADR 0002 с выбранным решением.
-- [ ] Создать миграции.
-- [ ] Применить миграции.
-- [ ] Проверить `makemigrations --check --dry-run`.
-- [ ] Проверить `ruff check .`.
-- [ ] Добавить минимальные model tests или явно отложить их отдельным решением.
+- [!] Не принято финальное решение по корзине: исходный план и ADR 0002 описывают session cart, но в коде уже есть database-backed `Cart`/`CartItem`.
+- [!] В `reviews.Review.user` сейчас `OneToOneField`. Это ограничивает пользователя одним отзывом вообще и конфликтует с правилом `один пользователь — один отзыв на один товар`.
+- [!] Миграции для текущих моделей не созданы. Docker-проверка `makemigrations --check --dry-run` показывает pending migrations для `catalog`, `orders`, `payments`, `reviews`, `cart`, `users`.
+- [!] Тесты пока отсутствуют: `pytest --collect-only` не находит тесты.
+
+### Что сделать до закрытия этапа 4
+
+1. Принять решение по корзине.
+2. Если остаётся session cart: удалить DB-модели `Cart`/`CartItem` до создания миграций и оставить реализацию корзины на уровне session-сервиса.
+3. Если принимается database-backed cart: обновить ADR 0002, `docs/database.md`, `docs/business-rules.md` и явно описать сценарий гостевой корзины.
+4. Исправить связь `reviews.Review.user` с `OneToOneField` на `ForeignKey`, если сохраняется бизнес-правило `один пользователь — один отзыв на один товар`.
+5. После архитектурных решений создать миграции внутри актуального Docker-окружения: `docker compose exec -T web python manage.py makemigrations`.
+6. Применить миграции: `docker compose exec -T web python manage.py migrate`.
+7. Повторить проверку: `docker compose exec -T web python manage.py makemigrations --check --dry-run`.
+8. Добавить минимальные model tests для критичных ограничений или явно перенести их в этап тестирования отдельным решением.
+9. Повторить `docker compose exec -T web python manage.py check` и `ruff check`.
 
 ### Definition of Done этапа 4
 
-- [ ] Все concrete-модели имеют осмысленные поля.
-- [ ] Нет пустых concrete-моделей с `pass`.
-- [ ] `python manage.py check` проходит.
-- [ ] `ruff check .` проходит.
-- [ ] Миграции созданы и применяются.
-- [ ] `makemigrations --check --dry-run` показывает отсутствие изменений.
+- [x] Все concrete-модели имеют осмысленные поля.
+- [x] Нет пустых concrete-моделей с `pass`.
+- [x] `python manage.py check` проходит.
+- [x] `ruff check .` проходит.
+- [ ] Решение по корзине зафиксировано в ADR и соответствует коду.
+- [ ] Связь `Review.user` соответствует бизнес-правилу отзывов.
+- [ ] Миграции созданы.
+- [ ] Миграции применяются в Docker PostgreSQL.
+- [ ] `docker compose exec -T web python manage.py makemigrations --check --dry-run` не показывает изменений.
 - [ ] `docs/database.md` соответствует модели данных.
 - [ ] `docs/business-rules.md` соответствует правилам домена.
 
 ## Этап 5. Админка
 
-Начинать только после закрытия этапа 4.
+Начинать после закрытия архитектурных решений и миграций этапа 4.
 
 - [ ] Настроить `CategoryAdmin`.
 - [ ] Настроить `ProductAdmin`.

@@ -90,6 +90,8 @@ myshop/
 
 ## Локальный запуск
 
+Локальный запуск предполагает, что PostgreSQL доступен по параметрам из `.env`.
+
 ```bash
 poetry install
 cp .env.example .env
@@ -110,6 +112,7 @@ docker compose up -d --build
 ```bash
 docker compose ps
 docker compose exec web python manage.py check
+docker compose exec web python manage.py makemigrations --check --dry-run
 ```
 
 ## Основные адреса

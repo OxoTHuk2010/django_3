@@ -70,22 +70,35 @@ poetry run pytest
 
 ## Миграции
 
-Создать миграции:
+Основной путь для проверки миграций и БД в проекте — через актуально пересобранный Docker Compose:
 
 ```bash
-poetry run python manage.py makemigrations
+docker compose up -d --build
 ```
 
-Применить миграции:
+Создать миграции внутри `web`:
 
 ```bash
-poetry run python manage.py migrate
+docker compose exec web python manage.py makemigrations
+```
+
+Применить миграции внутри `web`:
+
+```bash
+docker compose exec web python manage.py migrate
 ```
 
 Проверить, что новых миграций нет:
 
 ```bash
-poetry run python manage.py makemigrations --check --dry-run
+docker compose exec web python manage.py makemigrations --check --dry-run
+```
+
+Локальный запуск миграций через Poetry допустим только если локальный PostgreSQL поднят и параметры `.env` указывают на него:
+
+```bash
+poetry run python manage.py makemigrations
+poetry run python manage.py migrate
 ```
 
 ## Pre-commit

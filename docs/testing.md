@@ -30,6 +30,14 @@ poetry run python manage.py check
 poetry run ruff check .
 ```
 
+Проверка миграций выполняется в Docker Compose после пересборки контейнера:
+
+```bash
+docker compose up -d --build
+docker compose exec web python manage.py makemigrations --check --dry-run
+docker compose exec web python manage.py migrate
+```
+
 ## Уровни тестирования
 
 1. Тесты моделей.
