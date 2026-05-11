@@ -1,20 +1,40 @@
-# MyShop
+﻿# MyShop
 
-MyShop - учебный проект интернет магазина на Django c web-интерфейсом, REST API, JWT-авторизацией и Swagger-документацией
+MyShop — учебный проект интернет-магазина на Django. Цель проекта — собрать небольшой, аккуратный backend-продукт с веб-интерфейсом, корзиной, заказами, личным кабинетом, REST API, JWT-авторизацией, Swagger-документацией, PostgreSQL, Docker, Poetry, тестами и понятной инженерной документацией.
 
-## Cтек
+## Возможности
+
+Планируемая функциональность:
+
+- каталог товаров и категорий;
+- страница товара с изображениями, остатками, рейтингом и отзывами;
+- корзина;
+- оформление заказа;
+- личный кабинет и история заказов;
+- отзывы на товары;
+- mock-оплата;
+- REST API;
+- JWT-авторизация для API;
+- Swagger/OpenAPI документация;
+- Docker Compose окружение с PostgreSQL.
+
+## Стек
 
 - Python 3.12
-- Django
+- Django 6
 - Django REST Framework
-- Simple JWT
+- SimpleJWT
 - drf-spectacular
 - PostgreSQL
 - Poetry
+- Docker Compose
+- Ruff
+- pytest
 
-# Структура проекта:
-```
-/
+## Структура проекта
+
+```text
+myshop/
 ├── src/
 │   ├── config/
 │   │   ├── settings/
@@ -46,11 +66,14 @@ MyShop - учебный проект интернет магазина на Djan
 │   ├── api.md
 │   ├── development.md
 │   ├── testing.md
+│   ├── roadmap.md
+│   ├── conflicts.md
 │   └── decisions/
 │       ├── 0001-use-poetry.md
 │       ├── 0002-session-cart.md
 │       ├── 0003-jwt-for-api.md
-│       └── 0004-order-transaction.md
+│       ├── 0004-order-transaction.md
+│       └── 0005-domain-model.md
 │
 ├── tests/
 ├── docker/
@@ -70,25 +93,61 @@ MyShop - учебный проект интернет магазина на Djan
 ```bash
 poetry install
 cp .env.example .env
+poetry run python manage.py check
 poetry run python manage.py migrate
 poetry run python manage.py runserver
 ```
 
+## Запуск через Docker
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Проверка контейнеров:
+
+```bash
+docker compose ps
+docker compose exec web python manage.py check
+```
+
+## Основные адреса
+
+- Admin: `http://localhost:8000/admin/`
+- Swagger UI: `http://localhost:8000/api/docs/`
+- OpenAPI schema: `http://localhost:8000/api/schema/`
+
+## Конфигурация
+
+Настройки разделены на:
+
+- `config.settings.base` — общие настройки;
+- `config.settings.local` — локальная разработка;
+- `config.settings.production` — production-настройки.
+
+Основные переменные окружения описаны в `.env.example`.
 
 ## Документация
 
-Дополнительная документация:
+- `docs/architecture.md` — архитектура проекта и ответственность приложений.
+- `docs/database.md` — модель данных и связи между сущностями.
+- `docs/business-rules.md` — бизнес-правила домена.
+- `docs/api.md` — API, JWT и Swagger.
+- `docs/development.md` — запуск, конфигурация и troubleshooting.
+- `docs/testing.md` — стратегия тестирования.
+- `docs/roadmap.md` — чек-лист этапов проекта: сделано и предстоит.
+- `docs/conflicts.md` — текущие архитектурные конфликты и решения в обсуждении.
+- `docs/decisions/` — ADR: архитектурные решения.
 
-- docs/development.md — как разрабатывать
-- docs/architecture.md — архитектура
-- docs/api.md — API
-- docs/decisions/ — принятые решения
+## Проверки качества
 
-## Архитектурные решения
+```bash
+poetry run ruff check .
+poetry run ruff format .
+poetry run pytest
+```
 
-Принятые решения фиксируются в `docs/decisions/`:
+## Статус разработки
 
-- `0001-use-poetry.md` — управление зависимостями через Poetry
-- `0002-session-cart.md` — session-based корзина для web-интерфейса
-- `0003-jwt-for-api.md` — JWT для REST API
-- `0004-order-transaction.md` — транзакционное создание заказа
+Текущий прогресс и список следующих задач ведутся в `docs/roadmap.md`. Архитектурные противоречия фиксируются отдельно в `docs/conflicts.md`.

@@ -1,36 +1,87 @@
-# API
+﻿# API
 
-## Аутентификация
+## Текущий статус
 
-Используется JWT.
+API-инфраструктура подключена, но доменные API endpoints ещё не реализованы.
 
-### Получение токена
+Уже доступны:
 
+- JWT token endpoint.
+- JWT refresh endpoint.
+- OpenAPI schema.
+- Swagger UI.
+
+## JWT
+
+Получение access/refresh token:
+
+```http
 POST /api/token/
+```
+
+Пример тела запроса:
 
 ```json
 {
-  "username": "admin",
+  "username": "admin@example.com",
   "password": "password"
 }
 ```
-###  Обновление токена
 
+Важно: проект переходит к email-based user model. После завершения модели пользователя нужно проверить, какие поля реально ожидает JWT endpoint.
+
+Обновление access token:
+
+```http
 POST /api/token/refresh/
+```
 
-## Документация
+Пример:
+
+```json
+{
+  "refresh": "<refresh-token>"
+}
+```
+
+## Swagger и OpenAPI
 
 Swagger UI:
-```
+
+```text
 /api/docs/
 ```
+
 OpenAPI schema:
-```
+
+```text
 /api/schema/
 ```
+
 ## Планируемые endpoints
-- /api/products/
-- /api/cart/
-- /api/orders/
-- /api/users/
-- /api/reviews/
+
+После завершения доменной модели и web-части будут добавляться:
+
+- `GET /api/products/`
+- `GET /api/products/<id>/`
+- `POST /api/cart/`
+- `GET /api/orders/`
+- `POST /api/orders/`
+- `GET /api/orders/<id>/`
+- `POST /api/users/register/`
+- `POST /api/products/<id>/reviews/`
+
+## Правила доступа, которые нужно реализовать позже
+
+- Список и карточка товаров доступны всем.
+- Корзина API требует JWT.
+- Заказы API требуют JWT.
+- Пользователь видит только свои заказы.
+- Отзыв можно создать только при выполнении бизнес-правил reviews.
+
+## Текущие ограничения
+
+- `apps/api/urls.py` пока пустой.
+- Сериализаторы ещё не созданы.
+- Permissions ещё не созданы.
+- API-тесты ещё не написаны.

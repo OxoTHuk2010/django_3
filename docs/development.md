@@ -1,13 +1,4 @@
-# Development Guide
-
-## Используемый стек
-
-- Django
-- Django REST Framework
-- PostgreSQL
-- JWT (SimpleJWT)
-- Swagger (drf-spectacular)
-- Poetry
+﻿# Разработка
 
 ## Установка
 
@@ -16,59 +7,123 @@ poetry install
 cp .env.example .env
 ```
 
-## Запуск
+## Локальный запуск
 
 ```bash
+poetry run python manage.py check
 poetry run python manage.py migrate
 poetry run python manage.py runserver
 ```
 
-## Проверка конфигурации
+## Docker
 
 ```bash
-poetry run python manage.py check
+cp .env.example .env
+docker compose up -d --build
 ```
+
+Проверка:
+
+```bash
+docker compose ps
+docker compose exec web python manage.py check
+```
+
+## Адреса
+
+- Admin: `http://localhost:8000/admin/`
+- Swagger UI: `http://localhost:8000/api/docs/`
+- OpenAPI schema: `http://localhost:8000/api/schema/`
 
 ## Настройки
 
-Проект использует разделение настроек:
-
-- config.settings.local — для разработки
-- config.settings.production — для production
-
-Переключение через переменную:
+Основной settings module для разработки:
 
 ```bash
 DJANGO_SETTINGS_MODULE=config.settings.local
 ```
 
-## Переменные окружения
+Переменные окружения описаны в `.env.example`.
 
-Минимальный набор:
+Основные параметры:
 
-- SECRET_KEY
-- DEBUG
-- ALLOWED_HOSTS
-- DB_*
+- `DEBUG`
+- `SECRET_KEY`
+- `ALLOWED_HOSTS`
+- `CSRF_TRUSTED_ORIGINS`
+- `SECURE_COOKIES`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_HOST`
+- `DB_PORT`
+- `DJANGO_SETTINGS_MODULE`
 
-См. .env.example
+## Проверки качества
+
+```bash
+poetry run python manage.py check
+poetry run ruff check .
+poetry run ruff format .
+poetry run pytest
+```
+
+## Миграции
+
+Создать миграции:
+
+```bash
+poetry run python manage.py makemigrations
+```
+
+Применить миграции:
+
+```bash
+poetry run python manage.py migrate
+```
+
+Проверить, что новых миграций нет:
+
+```bash
+poetry run python manage.py makemigrations --check --dry-run
+```
 
 ## Pre-commit
 
-Установить:
+Установить hooks:
 
 ```bash
 poetry run pre-commit install
 ```
 
 Запустить вручную:
+
 ```bash
 poetry run pre-commit run --all-files
 ```
 
-Pre-commit выполняет:
+## Troubleshooting
 
-- линтинг (ruff)
-- форматирование (ruff-format)
-- проверку yaml/json
-- удаление лишних пробелов
+### `poetry` не найден
+
+Если `poetry` не доступен глобально, можно использовать Poetry из виртуального окружения:
+
+```bash
+.venv\Scripts\poetry.exe run python manage.py check
+```
+
+### Docker-контейнер не отражает последние изменения кода
+
+Пересобрать контейнер:
+
+```bash
+docker compose up -d --build
+```
+
+### PostgreSQL недоступен с хоста
+
+При работе через Docker предпочтительно выполнять команды внутри контейнера:
+
+```bash
+docker compose exec web python manage.py migrate
+```
