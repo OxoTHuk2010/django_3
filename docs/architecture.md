@@ -69,5 +69,6 @@ ADR находятся в `docs/decisions/`.
 - `0003-jwt-for-api.md` — использовать JWT для REST API.
 - `0004-order-transaction.md` — создавать заказ транзакционно.
 - `0005-domain-model.md` — разделить домен по приложениям.
+- `0006-soft-delete.md` — использовать soft delete ограниченно: только для `catalog.Category` и `catalog.Product`.
 
 Текущие конфликты и незакрытые решения см. в `docs/conflicts.md`.

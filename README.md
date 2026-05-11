@@ -73,7 +73,8 @@ myshop/
 │       ├── 0002-session-cart.md
 │       ├── 0003-jwt-for-api.md
 │       ├── 0004-order-transaction.md
-│       └── 0005-domain-model.md
+│       ├── 0005-domain-model.md
+│       └── 0006-soft-delete.md
 │
 ├── tests/
 ├── docker/
@@ -140,7 +141,7 @@ docker compose exec web python manage.py makemigrations --check --dry-run
 - `docs/development.md` — запуск, конфигурация и troubleshooting.
 - `docs/testing.md` — стратегия тестирования.
 - `docs/roadmap.md` — чек-лист этапов проекта: сделано и предстоит.
-- `docs/conflicts.md` — текущие архитектурные конфликты и решения в обсуждении.
+- `docs/conflicts.md` — текущие и закрытые архитектурные конфликты.
 - `docs/decisions/` — ADR: архитектурные решения.
 
 ## Проверки качества

@@ -25,12 +25,17 @@
 
 ### SoftDeleteModel
 
-Абстрактная модель для мягкого удаления:
+Абстрактная модель для мягкого удаления. По ADR `0006-soft-delete.md` используется ограниченно и не входит в `TimeStampedModel`.
 
 - `is_deleted`;
 - `deleted_at`.
 
-Если soft delete используется, публичные selectors должны исключать удалённые записи.
+На текущем этапе `SoftDeleteModel` разрешён только для:
+
+- `catalog.Category`;
+- `catalog.Product`.
+
+Публичные selectors каталога должны исключать записи с `is_deleted=True`.
 
 ## Users
 
@@ -61,6 +66,8 @@
 - `description`;
 - `parent` для вложенных категорий;
 - `is_active`;
+- `is_deleted`;
+- `deleted_at`;
 - `created_at`;
 - `updated_at`.
 
@@ -85,6 +92,8 @@
 - `stock` или `stock_quantity`;
 - `sku`;
 - `is_active`;
+- `is_deleted`;
+- `deleted_at`;
 - `created_at`;
 - `updated_at`.
 
@@ -94,7 +103,7 @@
 - `sku` уникален;
 - цена не может быть отрицательной;
 - остаток не может быть отрицательным;
-- товар доступен, если активен и остаток больше нуля.
+- товар доступен, если активен, не удалён через soft delete и остаток больше нуля.
 
 ### ProductImage
 
