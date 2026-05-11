@@ -33,7 +33,7 @@ class UserAdmin(DjangoUserAdmin):
         "last_name",
         "phone",
     )
-    ordering = ("email",)
+    ordering = ("username",)
 
     fieldsets = DjangoUserAdmin.fieldsets + (
         (
