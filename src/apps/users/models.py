@@ -6,21 +6,32 @@ from django.db import models
 
 class User(AbstractUser):
     """
-    Кастомная модель пользователя интернет-магазина.
+    Пользователь системы.
 
-    Почему используется кастомная модель:
-    - стандартную модель User сложно заменить после первых миграций;
-    - почти в любом реальном проекте появляются дополнительные поля;
-    - проще заранее заложить возможность развития модели пользователя.
+    Основной логин:
+        username
 
-    На текущем этапе пользователь авторизуется по email.
-    Поле username оставлено для совместимости с Django admin и AbstractUser.
+    Email:
+        вспомогательное контактное поле.
+
+    Почему не email как логин:
+        На текущем этапе проекта используется стандартная модель
+        аутентификации Django через username/password.
+
+        Это упрощает:
+        - создание суперпользователя;
+        - вход в Django Admin;
+        - получение JWT-токена;
+        - сопровождение проекта;
+        - тестирование.
     """
 
     email = models.EmailField(
         unique=True,
+        blank=True,
+        null=True,
         verbose_name="Email",
-        help_text="Уникальный email пользователя. Используется для входа в систему.",
+        help_text="Уникальный email пользователя.",
     )
     phone = models.CharField(
         max_length=32,
@@ -41,25 +52,12 @@ class User(AbstractUser):
         help_text="Фамилия пользователя.",
     )
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = [
-        "username",
-    ]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
-        ordering = [
-            "email",
-        ]
-        indexes = [
-            models.Index(
-                fields=[
-                    "email",
-                ],
-                name="users_user_email_idx",
-            ),
-        ]
 
     def __str__(self) -> str:
         """
@@ -68,4 +66,4 @@ class User(AbstractUser):
         Используется в Django admin, логах и связанных моделях.
         """
 
-        return self.email
+        return self.username
