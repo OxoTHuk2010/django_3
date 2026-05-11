@@ -71,5 +71,6 @@ ADR находятся в `docs/decisions/`.
 - `0005-domain-model.md` — разделить домен по приложениям.
 - `0006-soft-delete.md` — использовать soft delete ограниченно: только для `catalog.Category` и `catalog.Product`.
 - `0007-username-user-login.md` — использовать `username` как основной логин пользователя.
+- `0008-payment-order.md` — разрешить несколько платежей на один заказ с ограничением на один успешный платёж.
 
 Текущие конфликты и незакрытые решения см. в `docs/conflicts.md`.
