@@ -70,5 +70,6 @@ ADR находятся в `docs/decisions/`.
 - `0004-order-transaction.md` — создавать заказ транзакционно.
 - `0005-domain-model.md` — разделить домен по приложениям.
 - `0006-soft-delete.md` — использовать soft delete ограниченно: только для `catalog.Category` и `catalog.Product`.
+- `0007-username-user-login.md` — использовать `username` как основной логин пользователя.
 
 Текущие конфликты и незакрытые решения см. в `docs/conflicts.md`.

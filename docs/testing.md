@@ -51,8 +51,10 @@ docker compose exec web python manage.py migrate
 
 ### users
 
-- Пользователь создаётся с уникальным email.
-- Дублирующийся email отклоняется.
+- Пользователь создаётся с уникальным `username`.
+- `USERNAME_FIELD` равен `username`.
+- `email` необязателен.
+- Если `email` указан, дублирующийся email отклоняется.
 - `str(user)` возвращает понятное представление пользователя.
 
 ### catalog.Category

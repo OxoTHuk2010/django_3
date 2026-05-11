@@ -74,7 +74,8 @@ myshop/
 │       ├── 0003-jwt-for-api.md
 │       ├── 0004-order-transaction.md
 │       ├── 0005-domain-model.md
-│       └── 0006-soft-delete.md
+│       ├── 0006-soft-delete.md
+│       └── 0007-username-user-login.md
 │
 ├── tests/
 ├── docker/

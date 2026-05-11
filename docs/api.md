@@ -23,12 +23,12 @@ POST /api/token/
 
 ```json
 {
-  "username": "admin@example.com",
+  "username": "admin",
   "password": "password"
 }
 ```
 
-Важно: проект переходит к email-based user model. После завершения модели пользователя нужно проверить, какие поля реально ожидает JWT endpoint.
+Важно: по ADR `0007-username-user-login.md` основным логином остаётся `username`. JWT token endpoint ожидает стандартную пару `username` и `password`.
 
 Обновление access token:
 
