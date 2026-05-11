@@ -33,7 +33,7 @@ class Review(TimeStampedModel):
         REJECTED = "rejected", "Отклонён"
         HIDDEN = "hidden", "Скрыт"
 
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="reviews",
