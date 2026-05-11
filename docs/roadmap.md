@@ -78,6 +78,7 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] В `Review` есть ограничение уникальности пары `user + product`.
 - [x] Реализованы модели платежей: `Payment` со статусами, суммой, провайдером и внешним id.
 - [x] Реализованы DB-модели корзины: `Cart`, `CartItem`.
+- [x] ADR 0002 принимает гибридный подход к корзине: session для гостя, DB для авторизованного пользователя.
 - [x] Добавлены constraints для цен, количества, рейтинга и сумм.
 - [x] Добавлен ADR `0005-domain-model.md`.
 - [x] `ruff check` проходит.
@@ -85,22 +86,18 @@ Roadmap фиксирует текущий прогресс и следующие
 
 ### Что мешает закрыть этап 4
 
-- [!] Не принято финальное решение по корзине: исходный план и ADR 0002 описывают session cart, но в коде уже есть database-backed `Cart`/`CartItem`.
 - [!] В `reviews.Review.user` сейчас `OneToOneField`. Это ограничивает пользователя одним отзывом вообще и конфликтует с правилом `один пользователь — один отзыв на один товар`.
 - [!] Миграции для текущих моделей не созданы. Docker-проверка `makemigrations --check --dry-run` показывает pending migrations для `catalog`, `orders`, `payments`, `reviews`, `cart`, `users`.
 - [!] Тесты пока отсутствуют: `pytest --collect-only` не находит тесты.
 
 ### Что сделать до закрытия этапа 4
 
-1. Принять решение по корзине.
-2. Если остаётся session cart: удалить DB-модели `Cart`/`CartItem` до создания миграций и оставить реализацию корзины на уровне session-сервиса.
-3. Если принимается database-backed cart: обновить ADR 0002, `docs/database.md`, `docs/business-rules.md` и явно описать сценарий гостевой корзины.
-4. Исправить связь `reviews.Review.user` с `OneToOneField` на `ForeignKey`, если сохраняется бизнес-правило `один пользователь — один отзыв на один товар`.
-5. После архитектурных решений создать миграции внутри актуального Docker-окружения: `docker compose exec -T web python manage.py makemigrations`.
-6. Применить миграции: `docker compose exec -T web python manage.py migrate`.
-7. Повторить проверку: `docker compose exec -T web python manage.py makemigrations --check --dry-run`.
-8. Добавить минимальные model tests для критичных ограничений или явно перенести их в этап тестирования отдельным решением.
-9. Повторить `docker compose exec -T web python manage.py check` и `ruff check`.
+1. Исправить связь `reviews.Review.user` с `OneToOneField` на `ForeignKey`, если сохраняется бизнес-правило `один пользователь — один отзыв на один товар`.
+2. После архитектурных решений создать миграции внутри актуального Docker-окружения: `docker compose exec -T web python manage.py makemigrations`.
+3. Применить миграции: `docker compose exec -T web python manage.py migrate`.
+4. Повторить проверку: `docker compose exec -T web python manage.py makemigrations --check --dry-run`.
+5. Добавить минимальные model tests для критичных ограничений или явно перенести их в этап тестирования отдельным решением.
+6. Повторить `docker compose exec -T web python manage.py check` и `ruff check`.
 
 ### Definition of Done этапа 4
 
@@ -108,17 +105,17 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] Нет пустых concrete-моделей с `pass`.
 - [x] `python manage.py check` проходит.
 - [x] `ruff check .` проходит.
-- [ ] Решение по корзине зафиксировано в ADR и соответствует коду.
+- [x] Решение по корзине зафиксировано в ADR и соответствует коду.
 - [ ] Связь `Review.user` соответствует бизнес-правилу отзывов.
 - [ ] Миграции созданы.
 - [ ] Миграции применяются в Docker PostgreSQL.
 - [ ] `docker compose exec -T web python manage.py makemigrations --check --dry-run` не показывает изменений.
-- [ ] `docs/database.md` соответствует модели данных.
-- [ ] `docs/business-rules.md` соответствует правилам домена.
+- [x] `docs/database.md` соответствует модели данных.
+- [x] `docs/business-rules.md` соответствует правилам домена.
 
 ## Этап 5. Админка
 
-Начинать после закрытия архитектурных решений и миграций этапа 4.
+Начинать после исправления `Review.user` и создания миграций этапа 4.
 
 - [ ] Настроить `CategoryAdmin`.
 - [ ] Настроить `ProductAdmin`.
@@ -156,8 +153,10 @@ Roadmap фиксирует текущий прогресс и следующие
 
 ## Этап 8. Корзина
 
-- [ ] Финализировать подход: session или DB.
-- [ ] Реализовать `Cart` service.
+- [x] Финализировать подход: гибридная корзина, session для гостя и DB для авторизованного пользователя.
+- [ ] Реализовать session-cart для гостя.
+- [ ] Реализовать DB-cart service для авторизованного пользователя.
+- [ ] Реализовать merge session-cart в DB-cart после логина.
 - [ ] Добавление товара.
 - [ ] Удаление товара.
 - [ ] Изменение количества.
