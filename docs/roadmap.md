@@ -1,4 +1,4 @@
-﻿# Roadmap
+# Roadmap
 
 Roadmap фиксирует текущий прогресс и следующие шаги. Основные документы (`README`, `architecture`, `database`, `business-rules`) описывают целевую систему, а не журнал текущих ошибок.
 
@@ -16,7 +16,7 @@ Roadmap фиксирует текущий прогресс и следующие
 
 - [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит, `System check identified no issues (0 silenced)`.
 - [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит, `All checks passed!`.
-- [!] `.venv\Scripts\python.exe -m pytest --collect-only -q -p no:cacheprovider` — тесты не найдены, `no tests collected`.
+- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `51 passed`, покрытие `95%`.
 
 ### Docker-проверка
 
@@ -69,7 +69,7 @@ Roadmap фиксирует текущий прогресс и следующие
 
 ## Этап 4. Базовые модели
 
-Статус: в работе.
+Статус: готов к переходу на этап 5 после фиксации изменений в git.
 
 ### Фактически сделано
 
@@ -95,17 +95,19 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] Миграции применены в Docker PostgreSQL.
 - [x] `ruff check` проходит.
 - [x] `manage.py check` проходит локально и внутри Docker.
+- [x] Добавлены базовые model tests для `users`, `catalog`, `cart`, `orders`, `payments`, `reviews`.
 
 ### Что мешает закрыть этап 4
 
-- [!] Тесты пока отсутствуют: `pytest --collect-only` не находит тесты.
+Подтверждённых блокеров по базовым моделям нет. Изменения текущего шага затрагивают только тесты и документацию, поэтому миграции не менялись.
 
-### Что сделать до закрытия этапа 4
+### Что сделать перед переходом к этапу 5
 
-1. Добавить минимальные model tests для критичных ограничений или явно перенести их в этап тестирования отдельным решением.
-2. Повторить `docker compose exec -T web python manage.py check`.
-3. Повторить `docker compose exec -T web python manage.py makemigrations --check --dry-run`.
-4. Повторить `ruff check`.
+1. Просмотреть изменения тестов и документации.
+2. При необходимости повторить Docker-проверку после пересборки: `docker compose up -d --build`.
+3. Выполнить `docker compose exec -T web python manage.py check`.
+4. Выполнить `docker compose exec -T web python manage.py makemigrations --check --dry-run`.
+5. Зафиксировать изменения коммитом.
 
 ### Definition of Done этапа 4
 
@@ -123,10 +125,11 @@ Roadmap фиксирует текущий прогресс и следующие
 - [x] `docker compose exec -T web python manage.py makemigrations --check --dry-run` не показывает изменений.
 - [x] `docs/database.md` соответствует модели данных.
 - [x] `docs/business-rules.md` соответствует правилам домена.
+- [x] Базовые model tests добавлены и проходят.
 
 ## Этап 5. Админка
 
-Начинать после решения по минимальным model tests этапа 4.
+Следующий этап после закрытия базовых моделей.
 
 - [ ] Настроить `CategoryAdmin`.
 - [ ] Настроить `ProductAdmin`.
@@ -241,13 +244,13 @@ Roadmap фиксирует текущий прогресс и следующие
 
 - [x] Ruff добавлен.
 - [x] Pre-commit добавлен.
-- [ ] Pytest config.
+- [x] Pytest config.
 - [ ] Mypy config.
-- [ ] Базовые тесты.
+- [x] Базовые model tests.
 
 ## Этап 16. Тестовая стратегия
 
-- [ ] Model tests.
+- [x] Model tests.
 - [ ] Service tests.
 - [ ] View tests.
 - [ ] API tests.
