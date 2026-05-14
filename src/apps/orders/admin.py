@@ -28,6 +28,19 @@ class OrderAdmin(admin.ModelAdmin):
     Административная панель заказов.
     """
 
+    @admin.action(description="Отменить выбранные заказы")
+    def cancel_orders(self, request, queryset) -> None:
+        """
+        Перевести выбранные заказы в статус отмены через Django Admin.
+        """
+
+        updated_count = queryset.update(status=Order.Status.CANCELLED)
+
+        self.message_user(
+            request,
+            f"Отменено заказов: {updated_count}",
+        )
+
     list_display = (
         "id",
         "user",
@@ -57,6 +70,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline,
     ]
+    actions = ("cancel_orders",)
 
 
 @admin.register(OrderItem)

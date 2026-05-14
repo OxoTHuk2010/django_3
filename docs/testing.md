@@ -6,13 +6,13 @@
 
 ## Текущий статус
 
-Дата проверки: 2026-05-13.
+Дата проверки: 2026-05-14.
 
-- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `51 passed`, покрытие `95%`.
+- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `57 passed`, покрытие `94%`.
 - [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит.
 - [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит.
 
-Сейчас покрыт уровень model tests. Админка реализована частично: базовая регистрация моделей есть, но admin actions ещё требуют отдельных тестов. Сервисные, view и API-тесты будут добавляться после появления соответствующей бизнес-логики и интерфейсов.
+Сейчас покрыт уровень model tests и минимальный уровень admin tests. Сервисные, view и API-тесты будут добавляться после появления соответствующей бизнес-логики и интерфейсов.
 
 ## Команды
 
@@ -170,14 +170,17 @@ docker compose exec web python manage.py migrate
 
 ## Админка
 
-Будет покрыто до закрытия этапа 5:
+Покрыто:
 
+- ключевые модели зарегистрированы в Django Admin;
 - action активации товаров в `ProductAdmin`;
 - action деактивации товаров в `ProductAdmin`;
 - action отмены заказа в `OrderAdmin`;
 - action подтверждения оплаты в `PaymentAdmin`;
 - action отмены оплаты в `PaymentAdmin`;
 - корректное изменение статусов и служебных полей после выполнения actions.
+
+
 
 ## Сервисы
 
