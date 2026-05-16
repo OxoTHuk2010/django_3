@@ -1,0 +1,18 @@
+<article class="product-card">
+    <div>
+        <div class="product-card__category">{{ product.category.name }}</div>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description|default:"Описание товара будет добавлено позже."|truncatechars:140 }}</p>
+    </div>
+    <div class="product-meta">
+        <div>
+            <div class="price">{{ product.price }} ₽</div>
+            {% if product.stock_quantity > 0 %}
+                <div class="stock">В наличии: {{ product.stock_quantity }}</div>
+            {% else %}
+                <div class="stock">Нет в наличии</div>
+            {% endif %}
+        </div>
+        <span class="button secondary" aria-disabled="true">Карточка позже</span>
+    </div>
+</article>

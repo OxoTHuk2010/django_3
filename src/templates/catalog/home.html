@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}MyShop — главная{% endblock %}
+
+{% block content %}
+    <section class="hero">
+        <div class="hero-panel">
+            <p class="eyebrow">Аккуратный учебный интернет-магазин</p>
+            <h1>Каталог, который уже можно смотреть</h1>
+            <p class="lead">
+                На этом этапе доступны главная страница и список товаров с базовой фильтрацией.
+                Корзина, checkout и детальная карточка товара будут добавлены следующими шагами.
+            </p>
+            <p>
+                <a class="button" href="{% url 'catalog:product_list' %}">Открыть каталог</a>
+            </p>
+        </div>
+        <aside class="surface hero-panel">
+            <p class="eyebrow">Категории</p>
+            {% if categories %}
+                {% for category in categories %}
+                    <p><a href="{% url 'catalog:product_list' %}?category={{ category.slug }}">{{ category.name }}</a></p>
+                {% endfor %}
+            {% else %}
+                <p class="lead">Категории появятся после заполнения каталога.</p>
+            {% endif %}
+        </aside>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2>Новые товары</h2>
+            <a class="button secondary" href="{% url 'catalog:product_list' %}">Все товары</a>
+        </div>
+
+        {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                    {% include "catalog/includes/product_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Пока нет активных товаров для показа.</div>
+        {% endif %}
+    </section>
+{% endblock %}

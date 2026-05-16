@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}MyShop — каталог{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Публичный каталог</p>
+                <h1>Товары</h1>
+            </div>
+            <a class="button secondary" href="{% url 'catalog:home' %}">На главную</a>
+        </div>
+
+        <form class="filters" method="get" action="{% url 'catalog:product_list' %}">
+            <label>
+                <span class="eyebrow">Поиск</span>
+                <input type="search" name="q" value="{{ filter_state.q }}" placeholder="Название, описание или SKU">
+            </label>
+
+            <label>
+                <span class="eyebrow">Категория</span>
+                <select name="category">
+                    <option value="">Все категории</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if filter_state.category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                <span class="eyebrow">Цена от</span>
+                <input type="number" min="0" step="0.01" name="price_min" value="{{ filter_state.price_min }}" placeholder="0">
+            </label>
+
+            <label>
+                <span class="eyebrow">Цена до</span>
+                <input type="number" min="0" step="0.01" name="price_max" value="{{ filter_state.price_max }}" placeholder="999999">
+            </label>
+
+            <label>
+                <span class="eyebrow">Сортировка</span>
+                <select name="sort">
+                    {% for sort_key, sort_option in sort_options.items %}
+                        <option value="{{ sort_key }}" {% if filter_state.sort == sort_key %}selected{% endif %}>{{ sort_option.1 }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button type="submit">Показать</button>
+        </form>
+
+        {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                    {% include "catalog/includes/product_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">По выбранным условиям товары не найдены.</div>
+        {% endif %}
+
+        {% if is_paginated %}
+            <nav class="pagination" aria-label="Пагинация каталога">
+                {% if page_obj.has_previous %}
+                    <a class="page-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+                {% endif %}
+
+                {% for page_number in paginator.page_range %}
+                    {% if page_number == page_obj.number %}
+                        <span class="page-link active">{{ page_number }}</span>
+                    {% else %}
+                        <a class="page-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&amp;{% endif %}page={{ page_number }}">{{ page_number }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a class="page-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </section>
+{% endblock %}
