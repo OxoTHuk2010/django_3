@@ -151,7 +151,7 @@ Definition of Done этапа 6:
 
 Нужно сделать:
 
-- [ ] Добавить URL `/product/<slug>/`.
+- [ ] Добавить URL `/products/<slug>/`.
 - [ ] Добавить `ProductDetailView`.
 - [ ] Добавить selector для получения одного публичного товара по slug.
 - [ ] Создать шаблон `catalog/product_detail.html`.
