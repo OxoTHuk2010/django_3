@@ -14,6 +14,8 @@ from apps.catalog.selectors import (
     get_published_product_reviews,
     get_related_products,
 )
+from apps.reviews.forms import ReviewForm
+from apps.reviews.services import get_product_review_availability
 
 
 class HomeView(ListView):
@@ -97,10 +99,13 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = self.object
         review_stats = get_product_review_stats(product)
+        review_availability = get_product_review_availability(self.request.user, product)
 
         context["main_image"] = get_product_main_image(product)
         context["reviews"] = get_published_product_reviews(product)
         context["average_rating"] = review_stats["average_rating"]
         context["reviews_count"] = review_stats["reviews_count"]
         context["related_products"] = get_related_products(product)
+        context["review_form"] = ReviewForm() if review_availability.can_create else None
+        context["review_notice"] = review_availability.notice
         return context

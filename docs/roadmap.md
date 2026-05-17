@@ -14,7 +14,7 @@ Roadmap фиксирует текущий прогресс и ближайшие
 
 - [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит, `System check identified no issues (0 silenced)`.
 - [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит, `All checks passed!`.
-- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `115 passed`, покрытие `94%`.
+- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `138 passed`, покрытие `94%`.
 
 ## Последняя Docker-проверка
 
@@ -268,24 +268,24 @@ Definition of Done этапа 10:
 
 ## Этап 11. Отзывы
 
-Статус: решения для реализации приняты, код этапа ещё не реализован.
+Статус: закрыт.
 
 - [x] Принят ADR 0021: право оставить отзыв даёт заказ пользователя с нужным товаром в статусе `paid`, `processing`, `shipped` или `completed`.
 - [x] Принят ADR 0022: форма может отображаться на `/products/<slug>/`, но POST создания отзыва обрабатывает приложение `reviews` по маршруту `/reviews/products/<slug>/add/`.
 - [x] Начальный статус нового отзыва определён текущей моделью: `pending`, публичная видимость только после модерации.
-- [ ] Добавить `reviews/services.py`.
-- [ ] Добавить список `REVIEW_ELIGIBLE_ORDER_STATUSES` для статусов `paid`, `processing`, `shipped`, `completed`.
-- [ ] Реализовать `user_can_review_product(user, product)` через `Order` и `OrderItem`.
-- [ ] Реализовать `create_product_review()` с проверкой авторизации, покупки, уникальности отзыва и выставлением `is_verified_purchase=True`.
-- [ ] Добавить `reviews/forms.py` для рейтинга, заголовка и текста отзыва.
-- [ ] Добавить `reviews/urls.py` с маршрутом `POST /reviews/products/<slug>/add/`.
-- [ ] Добавить `ProductReviewCreateView` в `reviews/views.py`.
-- [ ] Подключить `reviews.urls` в корневой URLConf.
-- [ ] На детальной странице товара показать форму или понятное уведомление о причине недоступности отзыва.
-- [ ] После успешного создания отзыва возвращать пользователя на страницу товара и показывать сообщение о модерации.
-- [ ] Добавить service tests для права на отзыв, запрета без покупки, запрета повторного отзыва и `is_verified_purchase=True`.
-- [ ] Добавить view tests для POST-маршрута создания отзыва и связи формы с namespace `reviews`.
-- [ ] Обновить `docs/business-rules.md`, `docs/testing.md`, `docs/roadmap.md` после реализации.
+- [x] Добавлен `reviews/services.py`.
+- [x] Добавлен список `REVIEW_ELIGIBLE_ORDER_STATUSES` для статусов `paid`, `processing`, `shipped`, `completed`.
+- [x] Реализован `user_can_review_product(user, product)` через `Order` и `OrderItem`.
+- [x] Реализован `create_product_review()` с проверкой авторизации, покупки, уникальности отзыва и выставлением `is_verified_purchase=True`.
+- [x] Добавлен `reviews/forms.py` для рейтинга, заголовка и текста отзыва.
+- [x] Добавлен `reviews/urls.py` с маршрутом `POST /reviews/products/<slug>/add/`.
+- [x] Добавлен `ProductReviewCreateView` в `reviews/views.py`.
+- [x] Подключён `reviews.urls` в корневой URLConf.
+- [x] На детальной странице товара показывается форма или понятное уведомление о причине недоступности отзыва.
+- [x] После успешного создания отзыва пользователь возвращается на страницу товара и видит сообщение о модерации.
+- [x] Добавлены service tests для права на отзыв, запрета без покупки, запрета повторного отзыва и `is_verified_purchase=True`.
+- [x] Добавлены view tests для POST-маршрута создания отзыва и связи формы с namespace `reviews`.
+- [x] Обновлены `docs/business-rules.md`, `docs/testing.md`, `docs/roadmap.md`.
 
 ## Этап 12. REST API
 
@@ -331,6 +331,8 @@ Definition of Done этапа 10:
 - [x] Добавлены service tests для checkout.
 - [x] Добавлены web tests для checkout.
 - [x] Добавлены view tests личного кабинета.
+- [x] Добавлены service tests для отзывов.
+- [x] Добавлены web tests для отзывов.
 - [ ] Добавить API tests.
 
 ## Этап 17. UX-полировка

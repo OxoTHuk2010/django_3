@@ -53,7 +53,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section id="reviews" class="section">
         <div class="section-header">
             <div>
                 <p class="eyebrow">Отзывы</p>
@@ -84,6 +84,30 @@
         {% else %}
             <div class="empty-state">Отзывов пока нет.</div>
         {% endif %}
+
+        <div class="surface form-card">
+            <h2>Оставить отзыв</h2>
+            {% if review_form %}
+                <form method="post" action="{% url 'reviews:product_review_add' product.slug %}" class="form-grid">
+                    {% csrf_token %}
+                    {% for field in review_form %}
+                        <div class="form-field">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="form-errors">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit">Отправить отзыв</button>
+                </form>
+            {% else %}
+                <p class="muted">{{ review_notice }}</p>
+            {% endif %}
+        </div>
     </section>
 
     <section class="section">
