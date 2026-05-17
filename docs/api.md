@@ -1,4 +1,4 @@
-﻿# API
+# API
 
 ## Текущий статус
 
@@ -11,17 +11,17 @@ API-инфраструктура подключена, но доменные API
 - OpenAPI schema.
 - Swagger UI.
 
-## Блокирующие решения перед реализацией API
+## Принятые решения перед реализацией API
 
-Перед началом этапа 12 нужно принять ADR по открытым конфликтам:
+Блокирующие конфликты этапа 12 закрыты ADR:
 
-- `C024`: архитектура REST API и граница ответственности `apps/api`.
-- `C025`: контракт `Product API`.
-- `C026`: контракт API-корзины и связь с web/session-корзиной.
-- `C027`: контракт создания заказа через API.
-- `C028`: контракт API-регистрации и JWT после регистрации.
-- `C029`: контракт `Review API`.
-- `C030`: единый формат ошибок и permissions в REST API.
+- ADR 0023: REST API централизован в `apps/api`, доменные приложения остаются владельцами моделей и сервисов.
+- ADR 0024: Product API использует `slug` как публичный lookup.
+- ADR 0025: API-корзина требует JWT и работает только с DB-cart авторизованного пользователя.
+- ADR 0026: API создаёт заказ только из текущей API-корзины пользователя.
+- ADR 0027: API-регистрация создаёт пользователя и сразу возвращает JWT pair.
+- ADR 0028: Review API использует `slug` товара и доменный service-layer отзывов.
+- ADR 0029: собственные endpoints проекта используют единый JSON-формат ошибок.
 
 ## JWT
 
@@ -72,16 +72,21 @@ OpenAPI schema:
 
 ## Планируемые endpoints
 
-После завершения доменной модели и web-части будут добавляться:
+По принятым ADR этапа 12 будут добавляться:
 
 - `GET /api/products/`
-- `GET /api/products/<id>/`
-- `POST /api/cart/`
+- `GET /api/products/<slug>/`
+- `GET /api/cart/`
+- `POST /api/cart/items/`
+- `PATCH /api/cart/items/<product_id>/`
+- `DELETE /api/cart/items/<product_id>/`
+- `DELETE /api/cart/clear/`
 - `GET /api/orders/`
 - `POST /api/orders/`
 - `GET /api/orders/<id>/`
 - `POST /api/users/register/`
-- `POST /api/products/<id>/reviews/`
+- `GET /api/products/<slug>/reviews/`
+- `POST /api/products/<slug>/reviews/`
 
 ## Правила доступа, которые нужно реализовать позже
 

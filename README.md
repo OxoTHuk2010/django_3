@@ -1,4 +1,4 @@
-﻿# MyShop
+# MyShop
 
 MyShop — учебный проект интернет-магазина на Django. Цель проекта — собрать небольшой, аккуратный backend-продукт с веб-интерфейсом, корзиной, заказами, личным кабинетом, REST API, JWT-авторизацией, Swagger-документацией, PostgreSQL, Docker, Poetry, тестами и понятной инженерной документацией.
 
@@ -87,7 +87,15 @@ myshop/
 │       ├── 0016-cart-quantity-policy.md
 │       ├── 0017-session-cart-invalid-products.md
 │       ├── 0021-review-eligible-order-status.md
-│       └── 0022-review-web-create-contract.md
+│       ├── 0022-review-web-create-contract.md
+│       ├── 0023-api-architecture-boundary.md
+│       ├── 0024-product-api-contract.md
+│       ├── 0025-api-cart-contract.md
+│       ├── 0026-api-order-create-contract.md
+│       ├── 0027-api-registration-jwt.md
+│       ├── 0028-review-api-contract.md
+│       ├── 0029-api-error-permissions-contract.md
+│       └── 0030-seed-data-policy.md
 │
 ├── tests/
 ├── docker/
@@ -186,4 +194,4 @@ poetry run pytest
 - `/account/` — личный кабинет;
 - `/account/orders/` — история заказов.
 
-Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон — `115 passed`.
+Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон — `138 passed`.

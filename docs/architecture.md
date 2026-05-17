@@ -1,4 +1,4 @@
-﻿# Архитектура
+# Архитектура
 
 ## Назначение
 
@@ -13,7 +13,7 @@ MyShop — монолитный Django-проект интернет-магаз�
 - `orders` — checkout, сервис создания заказа, заказы и позиции заказов.
 - `reviews` — отзывы на товары, проверка права оставить отзыв и web-сценарий создания отзыва.
 - `payments` — платежи и статусы оплаты.
-- `api` — верхний слой сборки API-маршрутов и схемы.
+- `api` — централизованный REST API-слой: serializers, views/viewsets, permissions, filters, pagination, schema и маршруты.
 
 ## Слои приложения
 
@@ -22,7 +22,7 @@ MyShop — монолитный Django-проект интернет-магаз�
 - `services.py` — бизнес-операции, которые меняют состояние системы.
 - `selectors.py` — сложные queryset для чтения данных.
 - `views.py` — HTTP-обработчики без тяжёлой бизнес-логики.
-- `api/` — DRF serializers, views, permissions и routers внутри доменных приложений.
+- `apps/api/` — централизованный DRF-слой, который реализует внешний REST-контракт и вызывает доменные сервисы.
 
 ## Основные архитектурные принципы
 
@@ -30,7 +30,8 @@ MyShop — монолитный Django-проект интернет-магаз�
 - Создание заказа должно находиться в сервисном слое.
 - Queryset-логика каталога и заказов должна выноситься в selectors.
 - Пользовательские фильтры каталога должны находиться в `filters.py`, чтобы не раздувать `views.py`.
-- API-код должен находиться рядом с доменным приложением, а `apps/api` должен собирать маршруты.
+- API-код должен находиться централизованно в `apps/api` по ADR 0023.
+- Доменные приложения остаются владельцами моделей, бизнес-правил и service-layer.
 - Правила домена должны быть описаны в `docs/business-rules.md` и покрываться тестами.
 
 ## Публичный web-интерфейс
@@ -65,6 +66,18 @@ MyShop — монолитный Django-проект интернет-магаз�
 - Web-интерфейс использует Django sessions.
 - После успешного web-входа session-cart объединяется с DB-корзиной пользователя.
 - REST API использует JWT через SimpleJWT.
+- API-корзина и API-checkout требуют JWT и работают только с DB-cart авторизованного пользователя.
+
+## REST API
+
+REST API реализуется централизованно в приложении `apps/api`.
+
+- `apps/api` владеет публичным API-контрактом, сериализаторами, permissions, pagination, filters, schema и API-маршрутами.
+- Доменные приложения не содержат API-serializers/views для этапа 12.
+- API-слой не должен содержать бизнес-логику: операции корзины, заказов и отзывов вызывают доменные сервисы.
+- Product API использует `slug` как публичный lookup товара.
+- Review API использует `slug` товара и сервисы приложения `reviews`.
+- Собственные API endpoints проекта должны возвращать ошибки в едином JSON-формате по ADR 0029.
 
 ## Checkout
 
@@ -122,5 +135,13 @@ ADR находятся в `docs/decisions/`.
 - `0017-session-cart-invalid-products.md` — нормализовать битые и недоступные позиции session-cart в service-layer.
 - `0021-review-eligible-order-status.md` — считать подтверждённой покупкой заказ с товаром в статусе `paid`, `processing`, `shipped` или `completed`.
 - `0022-review-web-create-contract.md` — создавать отзывы через приложение `reviews` по POST `/reviews/products/<slug>/add/`.
+- `0023-api-architecture-boundary.md` — держать REST API-контракт централизованно в `apps/api`.
+- `0024-product-api-contract.md` — использовать `slug` как публичный lookup Product API.
+- `0025-api-cart-contract.md` — сделать API-корзину JWT-only поверх DB-cart.
+- `0026-api-order-create-contract.md` — создавать API-заказ только из текущей API-корзины.
+- `0027-api-registration-jwt.md` — возвращать JWT pair после API-регистрации.
+- `0028-review-api-contract.md` — использовать `slug` товара и review service-layer в Review API.
+- `0029-api-error-permissions-contract.md` — использовать единый формат ошибок и permissions в REST API.
+- `0030-seed-data-policy.md` — сделать seed-команду идемпотентной и не зависящей от `src/prepare/` в runtime.
 
-Текущие конфликты и незакрытые решения см. в `docs/conflicts.md`.
+Журнал конфликтов и статусы закрытия решений см. в `docs/conflicts.md`.
