@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование профиля — MyShop{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Личный кабинет</p>
+                <h1>Редактирование профиля</h1>
+            </div>
+            <a class="button secondary" href="{% url 'users:profile' %}">Назад</a>
+        </div>
+
+        <form method="post" class="surface form-card form-grid">
+            {% csrf_token %}
+            {% for field in form %}
+                <label class="form-field">
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {% if field.errors %}
+                        <span class="form-errors">{{ field.errors }}</span>
+                    {% endif %}
+                </label>
+            {% endfor %}
+            <button type="submit">Сохранить</button>
+        </form>
+    </section>
+{% endblock %}

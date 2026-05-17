@@ -122,3 +122,17 @@ def test_authenticated_cart_add_view_uses_db_cart(client, user, product):
     assert response.status_code == 302
     assert CartItem.objects.get(cart__user=user, product=product).quantity == 2
     assert "cart" not in client.session
+
+
+def test_cart_detail_has_checkout_link_for_valid_cart(client, product):
+    """Валидная корзина показывает ссылку на оформление заказа."""
+
+    session = client.session
+    session["cart"] = {str(product.id): 1}
+    session.save()
+
+    response = client.get(reverse("cart:detail"))
+
+    assert response.status_code == 200
+    assert_response_contains(response, reverse("orders:checkout"))
+    assert_response_contains(response, "Оформить заказ")

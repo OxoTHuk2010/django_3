@@ -38,6 +38,9 @@ CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORI
 
 # User auth model
 AUTH_USER_MODEL = "users.User"
+LOGIN_URL = "users:login"
+LOGIN_REDIRECT_URL = "users:profile"
+LOGOUT_REDIRECT_URL = "catalog:home"
 
 # Application definition
 

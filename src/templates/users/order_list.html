@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Мои заказы — MyShop{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Личный кабинет</p>
+                <h1>Мои заказы</h1>
+            </div>
+            <a class="button secondary" href="{% url 'users:profile' %}">Профиль</a>
+        </div>
+
+        {% if orders %}
+            <div class="order-list">
+                {% for order in orders %}
+                    <article class="surface order-card">
+                        <div>
+                            <h2>Заказ #{{ order.id }}</h2>
+                            <p class="muted">Статус: {{ order.get_status_display }} · {{ order.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        <strong class="price">{{ order.total_price }} ₽</strong>
+                        <a class="button secondary" href="{% url 'users:order_detail' order.pk %}">Подробнее</a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">У вас пока нет заказов.</div>
+        {% endif %}
+    </section>
+{% endblock %}

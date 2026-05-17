@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет — MyShop{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Личный кабинет</p>
+                <h1>{{ user.username }}</h1>
+            </div>
+        </div>
+
+        <div class="account-layout">
+            <article class="surface account-card">
+                <h2>Профиль</h2>
+                <p><strong>Email:</strong> {{ user.email|default:"не указан" }}</p>
+                <p><strong>Имя:</strong> {{ user.first_name|default:"не указано" }}</p>
+                <p><strong>Фамилия:</strong> {{ user.last_name|default:"не указана" }}</p>
+                <p><strong>Телефон:</strong> {{ user.phone|default:"не указан" }}</p>
+            </article>
+
+            <aside class="surface account-card account-actions">
+                <a class="button" href="{% url 'users:order_list' %}">История заказов</a>
+                <a class="button secondary" href="{% url 'users:profile_edit' %}">Редактировать профиль</a>
+                <a class="button secondary" href="{% url 'users:password_change' %}">Сменить пароль</a>
+            </aside>
+        </div>
+    </section>
+{% endblock %}

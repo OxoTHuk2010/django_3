@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Вход — MyShop{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Аккаунт</p>
+                <h1>Вход</h1>
+            </div>
+            <a class="button secondary" href="{% url 'users:register' %}">Создать аккаунт</a>
+        </div>
+
+        <form method="post" class="surface form-card form-grid">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <label class="form-field">
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {% if field.errors %}
+                        <span class="form-errors">{{ field.errors }}</span>
+                    {% endif %}
+                </label>
+            {% endfor %}
+            <button type="submit">Войти</button>
+        </form>
+    </section>
+{% endblock %}

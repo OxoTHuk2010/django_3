@@ -434,11 +434,66 @@
             font-weight: 700;
         }
 
+        .form-card,
+        .account-card,
+        .order-card {
+            padding: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .form-errors {
+            color: var(--accent-dark);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            color: var(--ink);
+            font: inherit;
+            background: #fffdf7;
+            resize: vertical;
+        }
+
+        .account-layout,
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .account-actions,
+        .order-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .order-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
         @media (max-width: 900px) {
             .hero,
             .grid,
             .reviews-list,
             .cart-layout,
+            .account-layout,
+            .checkout-layout,
             .cart-item,
             .product-detail__layout,
             .product-detail__facts,
@@ -465,7 +520,17 @@
             <div class="nav-links">
                 <a href="{% url 'catalog:product_list' %}">Каталог</a>
                 <a href="{% url 'cart:detail' %}">Корзина</a>
-                <span>Кабинет позже</span>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'users:profile' %}">Кабинет</a>
+                    <a href="{% url 'users:order_list' %}">Заказы</a>
+                    <form method="post" action="{% url 'users:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button secondary">Выйти</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'users:login' %}">Войти</a>
+                    <a href="{% url 'users:register' %}">Регистрация</a>
+                {% endif %}
             </div>
         </nav>
     </header>

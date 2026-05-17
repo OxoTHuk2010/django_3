@@ -75,8 +75,7 @@
                     </dl>
 
                     {% if cart_snapshot.can_checkout %}
-                        <button type="button" disabled>Оформить заказ</button>
-                        <p class="muted">Checkout будет подключён на следующем этапе.</p>
+                        <a class="button" href="{% url 'orders:checkout' %}">Оформить заказ</a>
                     {% else %}
                         <button type="button" disabled>Оформление недоступно</button>
                         <p class="muted">Проверьте недоступные позиции или измените количество.</p>

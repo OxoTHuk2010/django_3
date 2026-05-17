@@ -9,8 +9,8 @@ MyShop — учебный проект интернет-магазина на Dj
 - каталог товаров и категорий;
 - страница товара с изображениями, остатками, рейтингом и отзывами;
 - корзина для гостя через session и для авторизованного пользователя через DB;
-- оформление заказа;
-- личный кабинет и история заказов;
+- оформление заказа для авторизованного пользователя;
+- регистрация, вход, профиль, смена пароля и история заказов;
 - отзывы на товары;
 - mock-оплата;
 - REST API;
@@ -130,7 +130,13 @@ docker compose exec web python manage.py makemigrations --check --dry-run
 ## Основные адреса
 
 - Admin: `http://localhost:8000/admin/`
+- Каталог: `http://localhost:8000/products/`
 - Корзина: `http://localhost:8000/cart/`
+- Checkout: `http://localhost:8000/checkout/`
+- Вход: `http://localhost:8000/accounts/login/`
+- Регистрация: `http://localhost:8000/accounts/register/`
+- Личный кабинет: `http://localhost:8000/account/`
+- История заказов: `http://localhost:8000/account/orders/`
 - Swagger UI: `http://localhost:8000/api/docs/`
 - OpenAPI schema: `http://localhost:8000/api/schema/`
 
@@ -172,4 +178,10 @@ poetry run pytest
 
 - `/` — главная страница;
 - `/products/` — список товаров;
-- `/products/<slug>/` — детальная страница товара.
+- `/products/<slug>/` — детальная страница товара;
+- `/cart/` — корзина;
+- `/checkout/` — оформление заказа для авторизованного пользователя;
+- `/account/` — личный кабинет;
+- `/account/orders/` — история заказов.
+
+Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон — `115 passed`.
