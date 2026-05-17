@@ -35,8 +35,15 @@
 
                 <div class="product-detail__buy">
                     {% if product.stock_quantity > 0 %}
-                        <button type="button" disabled>Добавить в корзину</button>
-                        <p>Корзина будет доступна на следующем этапе разработки.</p>
+                        <form method="post" action="{% url 'cart:add' product.id %}" class="cart-form">
+                            {% csrf_token %}
+                            <label>
+                                <span class="product-detail__label">Количество</span>
+                                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
+                            </label>
+                            <button type="submit">Добавить в корзину</button>
+                        </form>
+                        <p>Товар будет добавлен в корзину с актуальной ценой и проверкой остатка.</p>
                     {% else %}
                         <button type="button" disabled>Нет в наличии</button>
                         <p>Товар временно недоступен для покупки.</p>

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Корзина — MyShop{% endblock %}
+
+{% block content %}
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Корзина</p>
+                <h1>Ваши товары</h1>
+            </div>
+            <a class="button secondary" href="{% url 'catalog:product_list' %}">Продолжить покупки</a>
+        </div>
+
+        {% if cart_snapshot.warnings %}
+            <div class="notice-list">
+                {% for warning in cart_snapshot.warnings %}
+                    <div class="notice warning">{{ warning }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if cart_snapshot.is_empty %}
+            <div class="empty-state">
+                Корзина пока пуста. Откройте каталог и добавьте товары, которые хотите купить.
+            </div>
+        {% else %}
+            <div class="cart-layout">
+                <div class="cart-items">
+                    {% for item in cart_snapshot.items %}
+                        <article class="cart-item surface">
+                            <div>
+                                <p class="eyebrow">{{ item.product.category.name }}</p>
+                                <h2>{{ item.product.name }}</h2>
+                                <p class="muted">Цена: {{ item.unit_price }} ₽</p>
+                                {% if item.is_available %}
+                                    <p class="stock">Доступно к оформлению</p>
+                                {% else %}
+                                    <p class="stock warning-text">{{ item.availability_message }}</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="cart-item__controls">
+                                <form method="post" action="{% url 'cart:update' item.product.id %}" class="cart-form">
+                                    {% csrf_token %}
+                                    <label>
+                                        <span>Количество</span>
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                                    </label>
+                                    <button type="submit">Обновить</button>
+                                </form>
+
+                                <form method="post" action="{% url 'cart:remove' item.product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button secondary">Удалить</button>
+                                </form>
+                            </div>
+
+                            <strong class="price">{{ item.total_price }} ₽</strong>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <aside class="cart-summary surface">
+                    <p class="eyebrow">Итого</p>
+                    <dl>
+                        <div>
+                            <dt>Товаров</dt>
+                            <dd>{{ cart_snapshot.total_quantity }}</dd>
+                        </div>
+                        <div>
+                            <dt>Сумма</dt>
+                            <dd>{{ cart_snapshot.total_price }} ₽</dd>
+                        </div>
+                    </dl>
+
+                    {% if cart_snapshot.can_checkout %}
+                        <button type="button" disabled>Оформить заказ</button>
+                        <p class="muted">Checkout будет подключён на следующем этапе.</p>
+                    {% else %}
+                        <button type="button" disabled>Оформление недоступно</button>
+                        <p class="muted">Проверьте недоступные позиции или измените количество.</p>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'cart:clear' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button secondary">Очистить корзину</button>
+                    </form>
+                </aside>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

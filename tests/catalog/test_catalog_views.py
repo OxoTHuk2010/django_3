@@ -247,16 +247,16 @@ def test_product_detail_handles_product_without_images(client, product):
     assert_response_contains(response, "Изображение отсутствует")
 
 
-def test_product_detail_shows_disabled_buy_button_for_available_product(client, product):
-    """На этапе 7 кнопка покупки видна, но не отправляет форму до реализации корзины."""
+def test_product_detail_shows_cart_form_for_available_product(client, product):
+    """На этапе 8 доступный товар можно добавить в корзину через POST-форму."""
 
     response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
     content = response.content.decode()
 
     assert response.status_code == 200
     assert "Добавить в корзину" in content
-    assert "disabled" in content
-    assert 'method="post"' not in content.lower()
+    assert 'method="post"' in content.lower()
+    assert reverse("cart:add", kwargs={"product_id": product.id}) in content
 
 
 def test_product_detail_shows_out_of_stock_state(client, product):

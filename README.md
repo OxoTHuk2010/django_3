@@ -8,7 +8,7 @@ MyShop — учебный проект интернет-магазина на Dj
 
 - каталог товаров и категорий;
 - страница товара с изображениями, остатками, рейтингом и отзывами;
-- корзина;
+- корзина для гостя через session и для авторизованного пользователя через DB;
 - оформление заказа;
 - личный кабинет и история заказов;
 - отзывы на товары;
@@ -76,7 +76,16 @@ myshop/
 │       ├── 0005-domain-model.md
 │       ├── 0006-soft-delete.md
 │       ├── 0007-username-user-login.md
-│       └── 0008-payment-order.md
+│       ├── 0008-payment-order.md
+│       ├── 0009-img-source.md
+│       ├── 0010-button.md
+│       ├── 0011-reviews-rating.md
+│       ├── 0012-rule-product.md
+│       ├── 0013-cart-web-routes.md
+│       ├── 0014-cart-service-layer.md
+│       ├── 0015-cart-merge-timing.md
+│       ├── 0016-cart-quantity-policy.md
+│       └── 0017-session-cart-invalid-products.md
 │
 ├── tests/
 ├── docker/
@@ -121,6 +130,7 @@ docker compose exec web python manage.py makemigrations --check --dry-run
 ## Основные адреса
 
 - Admin: `http://localhost:8000/admin/`
+- Корзина: `http://localhost:8000/cart/`
 - Swagger UI: `http://localhost:8000/api/docs/`
 - OpenAPI schema: `http://localhost:8000/api/schema/`
 
