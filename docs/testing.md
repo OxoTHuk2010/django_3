@@ -25,7 +25,7 @@ docker compose exec -T web python manage.py showmigrations
 
 ## Последний локальный результат
 
-Дата проверки: 2026-05-17.
+Дата проверки: 2026-05-18.
 
 - `manage.py check` — проходит.
 - `ruff check .` — проходит.

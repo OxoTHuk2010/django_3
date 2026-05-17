@@ -115,7 +115,7 @@ ADR находятся в `docs/decisions/`.
 - `0012-rule-product.md` — выбирать похожие товары из той же категории.
 - `0013-cart-web-routes.md` — использовать отдельные web-маршруты корзины с POST-действиями.
 - `0014-cart-service-layer.md` — держать бизнес-логику корзины в `apps/cart/services.py`.
-- `0015-cart-merge-timing.md` — реализовать merge-сервис на этапе корзины, но подключить его к login-flow позже.
+- `0015-cart-merge-timing.md` — реализовать merge-сервис на этапе корзины и явно подключить его к пользовательскому login-flow без `user_logged_in` signal.
 - `0016-cart-quantity-policy.md` — зафиксировать правила `add`, `update`, merge и системный лимит позиции.
 - `0017-session-cart-invalid-products.md` — нормализовать битые и недоступные позиции session-cart в service-layer.
 
