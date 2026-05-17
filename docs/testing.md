@@ -168,7 +168,8 @@ docker compose exec -T web python manage.py showmigrations
 
 Эти проверки появятся после реализации соответствующих этапов:
 
-- создание отзывов через сервис;
+- создание отзывов через сервис по правилам ADR 0021;
+- создание отзывов через web-маршрут `POST /reviews/products/<slug>/add/` по ADR 0022;
 - API endpoints;
 - JWT-флоу API.
 

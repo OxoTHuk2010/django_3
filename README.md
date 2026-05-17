@@ -85,7 +85,9 @@ myshop/
 │       ├── 0014-cart-service-layer.md
 │       ├── 0015-cart-merge-timing.md
 │       ├── 0016-cart-quantity-policy.md
-│       └── 0017-session-cart-invalid-products.md
+│       ├── 0017-session-cart-invalid-products.md
+│       ├── 0021-review-eligible-order-status.md
+│       └── 0022-review-web-create-contract.md
 │
 ├── tests/
 ├── docker/
