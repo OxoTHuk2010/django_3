@@ -13,6 +13,6 @@
                 <div class="stock">Нет в наличии</div>
             {% endif %}
         </div>
-        <span class="button secondary" aria-disabled="true">Карточка позже</span>
+        <a class="button secondary" href="{% url 'catalog:product_detail' product.slug %}">Открыть</a>
     </div>
 </article>

@@ -4,6 +4,8 @@ import pytest
 from django.urls import reverse
 from model_bakery import baker
 
+from apps.reviews.models import Review
+
 pytestmark = pytest.mark.django_db
 
 
@@ -161,3 +163,193 @@ def test_product_list_paginates_products(client, category):
     assert response.status_code == 200
     assert response.context["is_paginated"] is True
     assert len(response.context["products"]) == 6
+
+
+def test_product_detail_opens_public_product(client, product):
+    """Детальная страница открывает активный неудалённый товар из активной категории."""
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert_response_contains(response, product.name)
+    assert_response_contains(response, product.description)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("is_active", False),
+        ("is_deleted", True),
+    ],
+)
+def test_product_detail_hides_non_public_product(client, category, field: str, value: bool):
+    """Детальная страница не открывает неактивный или soft-deleted товар."""
+
+    product = make_product(
+        category,
+        "Hidden Product",
+        "hidden-product",
+        "SKU-HIDDEN-PRODUCT",
+        **{field: value},
+    )
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 404
+
+
+def test_product_detail_hides_product_from_hidden_category(client, product):
+    """Товар из скрытой категории недоступен, даже если сам товар активен."""
+
+    product.category.is_active = False
+    product.category.save(update_fields=["is_active"])
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 404
+
+
+def test_product_detail_uses_main_product_image(client, product):
+    """Основное изображение берётся только из ProductImage и выбирается по is_main."""
+
+    secondary_image = baker.make(
+        "catalog.ProductImage",
+        product=product,
+        image="products/secondary.jpg",
+        alt_text="Вторичное изображение",
+        is_main=False,
+        sort_order=1,
+    )
+    main_image = baker.make(
+        "catalog.ProductImage",
+        product=product,
+        image="products/main.jpg",
+        alt_text="Главное изображение",
+        is_main=True,
+        sort_order=2,
+    )
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert response.context["main_image"] == main_image
+    assert response.context["main_image"] != secondary_image
+    assert_response_contains(response, "Главное изображение")
+
+
+def test_product_detail_handles_product_without_images(client, product):
+    """Отсутствие ProductImage не ломает страницу и отображается как штатное состояние."""
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert response.context["main_image"] is None
+    assert_response_contains(response, "Изображение отсутствует")
+
+
+def test_product_detail_shows_disabled_buy_button_for_available_product(client, product):
+    """На этапе 7 кнопка покупки видна, но не отправляет форму до реализации корзины."""
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Добавить в корзину" in content
+    assert "disabled" in content
+    assert 'method="post"' not in content.lower()
+
+
+def test_product_detail_shows_out_of_stock_state(client, product):
+    """Если остаток равен нулю, детальная страница показывает состояние отсутствия товара."""
+
+    product.stock_quantity = 0
+    product.save(update_fields=["stock_quantity"])
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert_response_contains(response, "Нет в наличии")
+
+
+def test_product_detail_shows_only_published_reviews_and_rating(client, product, user, second_user):
+    """Отзывы и рейтинг считаются только по опубликованным отзывам."""
+
+    published_review = baker.make(
+        "reviews.Review",
+        user=user,
+        product=product,
+        rating=5,
+        title="Публичный отзыв",
+        text="Этот отзыв должен быть виден.",
+        status=Review.Status.PUBLISHED,
+    )
+    hidden_review = baker.make(
+        "reviews.Review",
+        user=second_user,
+        product=product,
+        rating=1,
+        title="Скрытый отзыв",
+        text="Этот отзыв не должен быть виден.",
+        status=Review.Status.HIDDEN,
+    )
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert list(response.context["reviews"]) == [published_review]
+    assert response.context["reviews_count"] == 1
+    assert response.context["average_rating"] == 5
+    assert_response_contains(response, published_review.title)
+    assert_response_not_contains(response, hidden_review.title)
+
+
+def test_product_detail_shows_empty_reviews_state(client, product):
+    """Если опубликованных отзывов нет, страница показывает понятное пустое состояние."""
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert response.context["reviews_count"] == 0
+    assert_response_contains(response, "Отзывов пока нет")
+
+
+def test_product_detail_shows_related_products_from_same_public_category(client, category, product):
+    """Похожие товары выбираются из той же активной категории и не включают текущий товар."""
+
+    related_products = [make_product(category, f"Related Product {index}", f"related-product-{index}", f"SKU-RELATED-{index}") for index in range(4)]
+    make_product(category, "Inactive Related", "inactive-related", "SKU-INACTIVE-RELATED", is_active=False)
+    make_product(category, "Deleted Related", "deleted-related", "SKU-DELETED-RELATED", is_deleted=True)
+
+    other_category = baker.make("catalog.Category", name="Other Category", slug="other-category")
+    make_product(other_category, "Other Category Product", "other-category-product", "SKU-OTHER-CATEGORY")
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+    shown_related_products = list(response.context["related_products"])
+
+    assert response.status_code == 200
+    assert len(shown_related_products) == 3
+    assert product not in shown_related_products
+    assert shown_related_products == sorted(related_products, key=lambda item: item.name)[:3]
+    assert_response_contains(response, "Related Product 0")
+    assert_response_not_contains(response, "Inactive Related")
+    assert_response_not_contains(response, "Deleted Related")
+    assert_response_not_contains(response, "Other Category Product")
+
+
+def test_product_detail_can_show_out_of_stock_related_product(client, category, product):
+    """Похожий товар с нулевым остатком остаётся видимым, но помечается как отсутствующий."""
+
+    related_product = make_product(
+        category,
+        "Out Of Stock Related",
+        "out-of-stock-related",
+        "SKU-OUT-RELATED",
+        stock_quantity=0,
+    )
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    assert related_product in response.context["related_products"]
+    assert_response_contains(response, related_product.name)
+    assert_response_contains(response, "Нет в наличии")

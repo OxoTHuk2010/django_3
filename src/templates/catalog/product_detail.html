@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — MyShop{% endblock %}
+
+{% block content %}
+    <section class="product-detail section">
+        <div class="product-detail__layout">
+            <div class="product-detail__media surface">
+                {% if main_image %}
+                    <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}" class="product-detail__image">
+                {% else %}
+                    <div class="product-detail__no-image">Изображение отсутствует</div>
+                {% endif %}
+            </div>
+
+            <article class="product-detail__summary surface">
+                <p class="eyebrow">{{ product.category.name }}</p>
+                <h1>{{ product.name }}</h1>
+                <p class="lead">{{ product.description|default:"Описание товара будет добавлено позже." }}</p>
+
+                <div class="product-detail__facts">
+                    <div>
+                        <span class="product-detail__label">Цена</span>
+                        <strong class="price">{{ product.price }} ₽</strong>
+                    </div>
+                    <div>
+                        <span class="product-detail__label">Остаток</span>
+                        {% if product.stock_quantity > 0 %}
+                            <strong class="stock">В наличии: {{ product.stock_quantity }}</strong>
+                        {% else %}
+                            <strong class="stock">Нет в наличии</strong>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="product-detail__buy">
+                    {% if product.stock_quantity > 0 %}
+                        <button type="button" disabled>Добавить в корзину</button>
+                        <p>Корзина будет доступна на следующем этапе разработки.</p>
+                    {% else %}
+                        <button type="button" disabled>Нет в наличии</button>
+                        <p>Товар временно недоступен для покупки.</p>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Отзывы</p>
+                <h2>Рейтинг товара</h2>
+            </div>
+            {% if reviews_count %}
+                <div class="product-detail__rating">
+                    {{ average_rating|floatformat:1 }} из 5 на основе {{ reviews_count }} отзывов
+                </div>
+            {% endif %}
+        </div>
+
+        {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                    <article class="review-card surface">
+                        <div class="review-card__header">
+                            <strong>{{ review.rating }}/5</strong>
+                            <span>{{ review.user }}</span>
+                        </div>
+                        {% if review.title %}
+                            <h3>{{ review.title }}</h3>
+                        {% endif %}
+                        <p>{{ review.text }}</p>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Отзывов пока нет.</div>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <p class="eyebrow">Каталог</p>
+                <h2>Похожие товары</h2>
+            </div>
+            <a class="button secondary" href="{% url 'catalog:product_list' %}">Все товары</a>
+        </div>
+
+        {% if related_products %}
+            <div class="grid">
+                {% for product in related_products %}
+                    {% include "catalog/includes/product_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">Похожие товары пока отсутствуют.</div>
+        {% endif %}
+    </section>
+{% endblock %}

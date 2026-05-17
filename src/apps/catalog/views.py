@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from apps.catalog.filters import (
     SORT_OPTIONS,
@@ -7,7 +7,12 @@ from apps.catalog.filters import (
 )
 from apps.catalog.selectors import (
     get_active_category_queryset,
+    get_product_detail_queryset,
     get_product_list_queryset,
+    get_product_main_image,
+    get_product_review_stats,
+    get_published_product_reviews,
+    get_related_products,
 )
 
 
@@ -16,7 +21,7 @@ class HomeView(ListView):
     Главная страница магазина.
 
     На текущем этапе она показывает короткую витрину активных товаров и ссылку
-    на полный каталог. Детальная карточка товара появится на следующем этапе.
+    на полный каталог. Карточки товаров ведут на публичную детальную страницу.
     """
 
     template_name = "catalog/home.html"
@@ -66,4 +71,36 @@ class ProductListView(ListView):
         context["filter_state"] = get_catalog_filter_state(self.request.GET)
         context["sort_options"] = SORT_OPTIONS
         context["querystring_without_page"] = query_params.urlencode()
+        return context
+
+
+class ProductDetailView(DetailView):
+    """
+    Публичная детальная страница товара.
+
+    View собирает данные через selectors, чтобы HTTP-слой не содержал бизнес-правила
+    видимости товара, отзывов, изображений и похожих товаров.
+    """
+
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
+    slug_url_kwarg = "slug"
+
+    def get_queryset(self):
+        """Вернуть только публично доступные товары для открытия по slug."""
+
+        return get_product_detail_queryset()
+
+    def get_context_data(self, **kwargs):
+        """Добавить read-only данные детальной страницы согласно ADR этапа 7."""
+
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        review_stats = get_product_review_stats(product)
+
+        context["main_image"] = get_product_main_image(product)
+        context["reviews"] = get_published_product_reviews(product)
+        context["average_rating"] = review_stats["average_rating"]
+        context["reviews_count"] = review_stats["reviews_count"]
+        context["related_products"] = get_related_products(product)
         return context
