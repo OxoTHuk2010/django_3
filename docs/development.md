@@ -115,6 +115,22 @@ poetry run pre-commit install
 poetry run pre-commit run --all-files
 ```
 
+## Demo-данные
+
+Создать или обновить демонстрационные данные:
+
+```bash
+python manage.py seed_demo_data
+```
+
+Безопасно пересоздать только seed-owned demo-данные в локальном окружении:
+
+```bash
+python manage.py seed_demo_data --reset --yes
+```
+
+Команда не зависит от `src/prepare/` в runtime и не должна использоваться как способ очистки всей базы.
+
 ## Troubleshooting
 
 ### `poetry` не найден

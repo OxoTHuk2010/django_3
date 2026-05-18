@@ -150,6 +150,34 @@ docker compose exec web python manage.py makemigrations --check --dry-run
 - Swagger UI: `http://localhost:8000/api/docs/`
 - OpenAPI schema: `http://localhost:8000/api/schema/`
 
+## REST API
+
+Основные endpoints:
+
+- `GET /api/products/`
+- `GET /api/products/<slug>/`
+- `GET /api/cart/`
+- `POST /api/cart/items/`
+- `POST /api/orders/`
+- `GET /api/orders/`
+- `POST /api/users/register/`
+- `GET /api/products/<slug>/reviews/`
+- `POST /api/products/<slug>/reviews/`
+
+API-корзина, заказы и создание отзывов требуют JWT.
+
+## Demo-данные
+
+```bash
+python manage.py seed_demo_data
+```
+
+Безопасный reset demo-данных:
+
+```bash
+python manage.py seed_demo_data --reset --yes
+```
+
 ## Конфигурация
 
 Настройки разделены на:
@@ -194,4 +222,4 @@ poetry run pytest
 - `/account/` — личный кабинет;
 - `/account/orders/` — история заказов.
 
-Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон — `138 passed`.
+Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон фиксируется в `docs/testing.md`.

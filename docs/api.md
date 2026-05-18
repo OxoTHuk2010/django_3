@@ -2,7 +2,7 @@
 
 ## Текущий статус
 
-API-инфраструктура подключена, но доменные API endpoints ещё не реализованы.
+API-инфраструктура и основные доменные API endpoints этапа 12 реализованы.
 
 Уже доступны:
 
@@ -70,25 +70,37 @@ OpenAPI schema:
 /api/schema/
 ```
 
-## Планируемые endpoints
+## Реализованные endpoints
 
-По принятым ADR этапа 12 будут добавляться:
+Каталог:
 
 - `GET /api/products/`
 - `GET /api/products/<slug>/`
+
+Корзина:
+
 - `GET /api/cart/`
 - `POST /api/cart/items/`
 - `PATCH /api/cart/items/<product_id>/`
 - `DELETE /api/cart/items/<product_id>/`
 - `DELETE /api/cart/clear/`
+
+Заказы:
+
 - `GET /api/orders/`
 - `POST /api/orders/`
 - `GET /api/orders/<id>/`
+
+Пользователи:
+
 - `POST /api/users/register/`
+
+Отзывы:
+
 - `GET /api/products/<slug>/reviews/`
 - `POST /api/products/<slug>/reviews/`
 
-## Правила доступа, которые нужно реализовать позже
+## Правила доступа
 
 - Список и карточка товаров доступны всем.
 - Корзина API требует JWT.
@@ -96,9 +108,71 @@ OpenAPI schema:
 - Пользователь видит только свои заказы.
 - Отзыв можно создать только при выполнении бизнес-правил reviews.
 
+## Примеры запросов
+
+Регистрация пользователя:
+
+```http
+POST /api/users/register/
+```
+
+```json
+{
+  "username": "apiuser",
+  "email": "apiuser@example.com",
+  "password": "StrongApiPassword123"
+}
+```
+
+Добавление товара в корзину:
+
+```http
+POST /api/cart/items/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "product_id": 10,
+  "quantity": 2
+}
+```
+
+Создание заказа из текущей API-корзины:
+
+```http
+POST /api/orders/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "customer_name": "Иван Иванов",
+  "customer_email": "ivan@example.com",
+  "customer_phone": "+79990000000",
+  "shipping_address": "Москва, ул. Примерная, д. 1",
+  "comment": "Позвонить перед доставкой"
+}
+```
+
+Создание отзыва:
+
+```http
+POST /api/products/<slug>/reviews/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "rating": 5,
+  "title": "Отличный товар",
+  "text": "Покупкой доволен."
+}
+```
+
 ## Текущие ограничения
 
-- `apps/api/urls.py` пока пустой.
-- Сериализаторы ещё не созданы.
-- Permissions ещё не созданы.
-- API-тесты ещё не написаны.
+- API-корзина не поддерживает анонимную session-cart.
+- API-заказ создаётся только из текущей DB-корзины пользователя.
+- SimpleJWT endpoints могут возвращать стандартный формат ошибок библиотеки.
+- Реальная платёжная интеграция не реализована, checkout создаёт mock-платёж.

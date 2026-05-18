@@ -1,0 +1,1 @@
+"""Management-пакет приложения catalog."""
