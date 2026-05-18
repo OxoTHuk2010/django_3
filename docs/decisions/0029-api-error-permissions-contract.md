@@ -4,6 +4,16 @@
 
 Принято.
 
+## Актуальная сжатая версия
+
+- API ошибки приводятся к единому JSON-формату `{code, detail, fields}`.
+- Validation and business-rule errors use predictable HTTP status codes and machine-readable codes.
+- Чужие приватные ресурсы, включая чужие заказы, скрываются через `404`.
+- JWT auth failures return `401`; authenticated-but-not-allowed cases return `403`, если существование объекта не нужно скрывать.
+- Этот ADR распространяется на будущие compatibility routes этапа 27.
+- GraphQL errors этапа 28 могут иметь собственный GraphQL-формат, но должны переиспользовать те же permission and service-layer rules.
+- Подробные примеры ниже являются историческим контрактным контекстом.
+
 ## Контекст
 
 В рамках этапа 12 реализуется REST API проекта.

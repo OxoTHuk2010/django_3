@@ -4,6 +4,15 @@
 
 Принято.
 
+## Актуальная сжатая версия
+
+- Действующий Product API использует `slug` для detail route и review route.
+- Public list поддерживает пагинацию, поиск, фильтрацию и сортировку.
+- Product API не должен показывать неактивные, soft-deleted товары и товары из скрытых категорий.
+- После появления конфликта `C036` slug routes сохраняются, но этап 27 должен добавить compatibility route `GET /api/products/<int:id>/`.
+- Swagger/OpenAPI и `docs/api.md` должны после реализации показывать both current slug routes and compatibility id routes.
+- Большие примеры ниже считаются историческим контрактным контекстом.
+
 ## Контекст
 
 В рамках этапа 12 реализуется REST API проекта.

@@ -4,6 +4,15 @@
 
 Принято.
 
+## Актуальная сжатая версия
+
+- REST API централизован в `apps/api`.
+- `apps/api` владеет serializers, API views, API permissions, pagination, filters and exception mapping.
+- Доменная бизнес-логика остаётся в профильных приложениях и service layer: `cart`, `orders`, `reviews`, `catalog`, `users`, `payments`.
+- API не должен дублировать правила корзины, checkout, review eligibility и visibility.
+- После появления этапов 27 и 28 REST API остаётся отдельным от GraphQL; GraphQL добавляется только для аналитики через `/graphql/`.
+- Подробные примеры кода ниже являются историческими иллюстрациями, а не обязательным шаблоном реализации.
+
 ## Контекст
 
 В рамках этапа 12 реализуется REST API проекта.
