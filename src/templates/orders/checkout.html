@@ -3,58 +3,50 @@
 {% block title %}Оформление заказа — MyShop{% endblock %}
 
 {% block content %}
-    <section class="section">
-        <div class="section-header">
-            <div>
-                <p class="eyebrow">Checkout</p>
-                <h1>Оформление заказа</h1>
+    <main class="checkout-page-wrapper">
+        <div class="checkout-container">
+            <div class="section-heading-row">
+                <h1 class="checkout-title">Оформление заказа</h1>
+                <a class="button button--secondary compact-button" href="{% url 'cart:detail' %}">Вернуться в корзину</a>
             </div>
-            <a class="button secondary" href="{% url 'cart:detail' %}">Вернуться в корзину</a>
-        </div>
 
-        <div class="checkout-layout">
-            <form method="post" class="surface form-card form-grid">
+            <form method="post" id="checkout-form">
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
                     <div class="form-errors">{{ form.non_field_errors }}</div>
                 {% endif %}
 
-                {% for field in form %}
-                    <label class="form-field">
-                        <span>{{ field.label }}</span>
-                        {{ field }}
-                        {% if field.errors %}
-                            <span class="form-errors">{{ field.errors }}</span>
-                        {% endif %}
-                    </label>
-                {% endfor %}
-
-                <button type="submit">Подтвердить заказ</button>
-            </form>
-
-            <aside class="cart-summary surface">
-                <p class="eyebrow">Состав заказа</p>
-                <dl>
-                    <div>
-                        <dt>Товаров</dt>
-                        <dd>{{ cart_snapshot.total_quantity }}</dd>
-                    </div>
-                    <div>
-                        <dt>Сумма</dt>
-                        <dd>{{ cart_snapshot.total_price }} ₽</dd>
-                    </div>
-                </dl>
-
-                <div class="cart-items">
-                    {% for item in cart_snapshot.items %}
-                        <div>
-                            <strong>{{ item.product.name }}</strong>
-                            <p class="muted">{{ item.quantity }} × {{ item.unit_price }} ₽</p>
+                <section class="checkout-section">
+                    <h2 class="checkout-section__title">Контактные данные</h2>
+                    {% for field in form %}
+                        <div class="checkout-form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <span class="form-errors">{{ field.errors }}</span>
+                            {% endif %}
                         </div>
                     {% endfor %}
-                </div>
-            </aside>
+                </section>
+
+                <section class="checkout-summary">
+                    <h2 class="checkout-section__title">Состав заказа</h2>
+                    <div class="summary-details">
+                        {% for item in cart_snapshot.items %}
+                            <div class="summary-line">
+                                <span>{{ item.product.name }}</span>
+                                <strong>{{ item.quantity }} × {{ item.unit_price }} ₽</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="summary-total">
+                        <p>Итого</p>
+                        <p>{{ cart_snapshot.total_price }} ₽</p>
+                    </div>
+                    <button type="submit" class="button button--primary button--pay">Подтвердить заказ</button>
+                </section>
+            </form>
         </div>
-    </section>
+    </main>
 {% endblock %}

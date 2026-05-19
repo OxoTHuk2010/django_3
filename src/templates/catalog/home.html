@@ -1,46 +1,53 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}MyShop — главная{% endblock %}
 
 {% block content %}
-    <section class="hero">
-        <div class="hero-panel">
-            <p class="eyebrow">Аккуратный учебный интернет-магазин</p>
-            <h1>Каталог, который уже можно смотреть</h1>
-            <p class="lead">
-                Сейчас доступны главная страница, список товаров с базовой фильтрацией
-                и детальная карточка товара. Корзина и checkout будут добавлены следующими шагами.
-            </p>
-            <p>
-                <a class="button" href="{% url 'catalog:product_list' %}">Открыть каталог</a>
-            </p>
-        </div>
-        <aside class="surface hero-panel">
-            <p class="eyebrow">Категории</p>
-            {% if categories %}
-                {% for category in categories %}
-                    <p><a href="{% url 'catalog:product_list' %}?category={{ category.slug }}">{{ category.name }}</a></p>
-                {% endfor %}
-            {% else %}
-                <p class="lead">Категории появятся после заполнения каталога.</p>
-            {% endif %}
-        </aside>
-    </section>
+    <main>
+        <section class="hero-banner">
+            <img src="{% static 'shop/img/background/hopfen-fields.jpg' %}" alt="Поле хмеля" class="hero-banner__image">
+            <div class="hero-banner__overlay"></div>
+        </section>
 
-    <section class="section">
-        <div class="section-header">
-            <h2>Новые товары</h2>
-            <a class="button secondary" href="{% url 'catalog:product_list' %}">Все товары</a>
-        </div>
+        <div class="container main-content-grid">
+            <aside class="sidebar">
+                <div class="sidebar__section">
+                    <h3 class="section-title">Категории</h3>
+                    <div class="keywords-list">
+                        {% for category in categories %}
+                            <a class="keyword-tag" href="{% url 'catalog:product_list' %}?category={{ category.slug }}">{{ category.name }}</a>
+                        {% empty %}
+                            <span class="muted">Категории появятся после заполнения каталога.</span>
+                        {% endfor %}
+                    </div>
+                </div>
 
-        {% if products %}
-            <div class="grid">
-                {% for product in products %}
-                    {% include "catalog/includes/product_card.html" %}
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">Пока нет активных товаров для показа.</div>
-        {% endif %}
-    </section>
+                <div class="sidebar__section">
+                    <h3 class="section-title">Статус витрины</h3>
+                    <p class="muted">Каталог, карточки товаров, корзина, оформление заказа и отзывы работают на текущих Django-данных.</p>
+                </div>
+            </aside>
+
+            <section class="products-area product-grid-section">
+                <div class="search-sort-bar">
+                    <div>
+                        <p class="section-kicker">MyShop</p>
+                        <h1 class="page-title">Товары для домашнего пивоварения</h1>
+                    </div>
+                    <a class="button button--primary catalog-open-button" href="{% url 'catalog:product_list' %}">Открыть каталог</a>
+                </div>
+
+                {% if products %}
+                    <div class="product-grid">
+                        {% for product in products %}
+                            {% include "catalog/includes/product_card.html" %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">Пока нет активных товаров для показа.</div>
+                {% endif %}
+            </section>
+        </div>
+    </main>
 {% endblock %}

@@ -1,33 +1,41 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Регистрация — MyShop{% endblock %}
 
 {% block content %}
-    <section class="section">
-        <div class="section-header">
-            <div>
-                <p class="eyebrow">Аккаунт</p>
-                <h1>Регистрация</h1>
-            </div>
-            <a class="button secondary" href="{% url 'users:login' %}">Уже есть аккаунт</a>
+    <main class="auth-page-wrapper">
+        <div class="auth-background">
+            <img src="{% static 'shop/img/background/pattern.jpg' %}" alt="">
         </div>
+        <div class="auth-form-container auth-container--register">
+            <div class="Legend">
+                <h1 class="auth-title">Регистрация</h1>
+            </div>
 
-        <form method="post" class="surface form-card form-grid">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {% for field in form %}
-                <label class="form-field">
-                    <span>{{ field.label }}</span>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <span class="muted">{{ field.help_text }}</span>
-                    {% endif %}
-                    {% if field.errors %}
-                        <span class="form-errors">{{ field.errors }}</span>
-                    {% endif %}
-                </label>
-            {% endfor %}
-            <button type="submit">Зарегистрироваться</button>
-        </form>
-    </section>
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div class="InputField">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <span class="muted">{{ field.help_text }}</span>
+                        {% endif %}
+                        {% if field.errors %}
+                            <span class="form-errors">{{ field.errors }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="ButtonGroup">
+                    <button type="submit" class="button button--primary">Зарегистрироваться</button>
+                </div>
+            </form>
+
+            <p class="auth-switch">
+                Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a>
+            </p>
+        </div>
+    </main>
 {% endblock %}

@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-Дата оценки: 2026-05-19.
+Дата оценки: 2026-05-20.
 
 Документ фиксирует фактический baseline перед следующими этапами. Ручные проверки текущего web-состояния уже выполнены отдельно; ниже зафиксированы инженерная оценка, автоматические проверки и ближайшие реализуемые направления.
 
@@ -16,17 +16,22 @@
 - REST API вынесен в `apps/api`, использует JWT, единый слой serializers/views и покрывает продукты, корзину, заказы, регистрацию и отзывы;
 - Swagger/OpenAPI подключён через drf-spectacular;
 - demo-data создаётся management command `seed_demo_data`, команда идемпотентна и защищает destructive reset;
-- UI-шаблоны и runtime-статика уже перенесены из подготовленного UI в `src/templates` и `src/static`, при этом `src/prepare` остаётся reference/source, а не runtime-зависимостью.
+- UI-шаблоны и runtime-статика перенесены в `src/templates` и `src/static/shop`, при этом `src/prepare` остаётся reference/source, а не runtime-зависимостью;
+- reference UI перенесён в рабочие Django-шаблоны с русской локализацией и текущим брендом `MyShop`: header/footer, hero/banner, sidebar filters, product grid, карточки, auth forms, корзина и checkout;
+- runtime JS подключён из `src/static/shop/js/main.js` как progressive enhancement для аккордеонов, фильтров и quantity controls; симуляция login/cart из reference-прототипа не переносилась, потому что проект использует реальные Django-сессии и POST-формы;
+- reference product images перенесены в `src/static/shop/img/products`, а `seed_demo_data` создаёт штатные `ProductImage` через копирование в `MEDIA_ROOT/demo/products`;
+- этапы 20, 21 и 22 закрыты: baseline зафиксирован, бренд runtime UI — `MyShop`, пользовательские UI-тексты и demo-data русскоязычные, CSS/JS/images находятся в tracked static.
 
-Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator, не завершены русификация/брендинг UI и будущая аналитика.
+Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator, не завершены современная админка и будущая аналитика.
 
 ## Проверенный baseline
 
-Автоматические проверки на 2026-05-19:
+Автоматические проверки на 2026-05-20:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py check
 .\.venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\.venv\Scripts\python.exe manage.py collectstatic --dry-run --noinput --clear
 .\.venv\Scripts\python.exe -m ruff check . --no-cache
 .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
 ```
@@ -35,29 +40,24 @@
 
 - `manage.py check` проходит без замечаний;
 - `makemigrations --check --dry-run` сообщает `No changes detected`;
+- `collectstatic --dry-run --noinput --clear` видит `src/static/shop/css/main.css`, `src/static/shop/js/main.js` и перенесённые изображения, проходит;
 - `ruff check` проходит;
 - `pytest` проходит: `159 passed`, coverage `90%`;
 - единственное предупреждение тестового прогона: `InsecureKeyLengthWarning` из SimpleJWT из-за короткого dev `SECRET_KEY`; это не блокирует локальную разработку, но production secret должен быть длинным и внешним.
 
-Ручные проверки текущего UI считаются выполненными по состоянию на эту оценку. Следующий ручной цикл нужен после изменений в UI, seed-данных, checkout/payment или production runtime.
+Ручные проверки предыдущего UI были выполнены до переноса reference-дизайна. После текущих изменений выполнена автоматическая и HTTP smoke-проверка; отдельный визуальный ручной цикл по браузеру нужен перед фиксацией финального UI baseline.
 
 ## Что можно реализовывать уже сейчас
 
 Эти этапы можно брать в работу без дополнительных архитектурных блокеров:
 
-1. Этап 21, завершение дизайна, шаблонов и статики.
-   Можно доделывать русификацию текстов, привести публичный бренд к выбранному названию, выровнять empty states, сообщения, навигацию, адаптивность и проверить `collectstatic`. Базовая структура шаблонов и статики уже есть.
-
-2. Этап 22, русскоязычные demo-данные.
-   Команда `seed_demo_data` уже существует и покрыта тестами. Можно расширять набор товаров, заказов, отзывов и пользователей, привязать demo-данные к runtime-изображениям и подготовить данные под будущую аналитику.
-
-3. UX-полировка web-флоу.
+1. UX-полировка web-флоу.
    Можно улучшать сообщения после действий, пустые состояния корзины/заказов/отзывов, визуальные состояния ошибок и доступность форм без изменения доменной архитектуры.
 
-4. Финальная локальная/Docker-проверка MVP.
+2. Финальная локальная/Docker-проверка MVP.
    Можно провести новый clean-run через Docker Compose, seed, web-flow, Swagger и JWT, затем закрыть этап 19 как актуальный baseline.
 
-5. Небольшие улучшения тестов.
+3. Небольшие улучшения тестов.
    Можно добавлять focused tests на шаблоны, messages, manual-check regressions и seed-data scenarios без пересмотра архитектуры.
 
 ## Что лучше подготовить ADR перед реализацией
@@ -77,15 +77,14 @@
 
 ## Остаточные риски
 
-- UI частично наследует подготовленный Hop & Barley visual language; нужно финально решить бренд и язык пользовательских текстов.
-- Runtime-статика сейчас перенесена в `src/static`, но перед production нужно проверить `collectstatic` и структуру static assets.
+- Runtime-статика вынесена в `src/static/shop`, но production static serving ещё зависит от этапа 30.
+- Media-файлы demo-товаров создаются seed-командой в `MEDIA_ROOT/demo/products`; production media serving ещё зависит от этапа 30.
 - Production settings минимальны; реальные `SECRET_KEY`, `ALLOWED_HOSTS`, secure cookies, HTTPS и static serving ещё требуют отдельной настройки.
 - Payment flow пока mock-success внутри checkout; для более реалистичного поведения нужен отдельный payment emulator.
 - API покрыт тестами, но compatibility routes и versioning ещё не реализованы.
 
 ## Рекомендуемый порядок ближайших работ
 
-1. Закрыть этап 21: UI, статика, язык, бренд, адаптивность, `collectstatic`.
-2. Закрыть этап 22: русскоязычные и расширенные demo-данные.
-3. Повторить полный ручной и автоматический baseline.
-4. После этого выбрать один крупный архитектурный трек: admin analytics, payment emulator, CI или production runtime.
+1. Повторить полный ручной и автоматический baseline после UI/demo-data переноса.
+2. Закрыть этап 23: современная админка.
+3. После этого выбрать один крупный архитектурный трек: admin analytics, payment emulator, CI или production runtime.

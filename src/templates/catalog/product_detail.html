@@ -1,132 +1,148 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ product.name }} — MyShop{% endblock %}
 
 {% block content %}
-    <section class="product-detail section">
-        <div class="product-detail__layout">
-            <div class="product-detail__media surface">
-                {% if main_image %}
-                    <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}" class="product-detail__image">
-                {% else %}
-                    <div class="product-detail__no-image">Изображение отсутствует</div>
-                {% endif %}
-            </div>
-
-            <article class="product-detail__summary surface">
-                <p class="eyebrow">{{ product.category.name }}</p>
-                <h1>{{ product.name }}</h1>
-                <p class="lead">{{ product.description|default:"Описание товара будет добавлено позже." }}</p>
-
-                <div class="product-detail__facts">
-                    <div>
-                        <span class="product-detail__label">Цена</span>
-                        <strong class="price">{{ product.price }} ₽</strong>
-                    </div>
-                    <div>
-                        <span class="product-detail__label">Остаток</span>
-                        {% if product.stock_quantity > 0 %}
-                            <strong class="stock">В наличии: {{ product.stock_quantity }}</strong>
-                        {% else %}
-                            <strong class="stock">Нет в наличии</strong>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="product-detail__buy">
-                    {% if product.stock_quantity > 0 %}
-                        <form method="post" action="{% url 'cart:add' product.id %}" class="cart-form">
-                            {% csrf_token %}
-                            <label>
-                                <span class="product-detail__label">Количество</span>
-                                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}">
-                            </label>
-                            <button type="submit">Добавить в корзину</button>
-                        </form>
-                        <p>Товар будет добавлен в корзину с актуальной ценой и проверкой остатка.</p>
+    <main class="page-product">
+        <div class="container">
+            <section class="product-details-section">
+                <div class="product-image-container">
+                    {% if main_image %}
+                        <img src="{{ main_image.image.url }}" alt="{{ main_image.alt_text|default:product.name }}" class="product-image">
                     {% else %}
-                        <button type="button" disabled>Нет в наличии</button>
-                        <p>Товар временно недоступен для покупки.</p>
+                        <div class="product-image product-image--placeholder">
+                            <img src="{% static 'shop/img/logo.svg' %}" alt="">
+                            <span>Изображение отсутствует</span>
+                        </div>
                     {% endif %}
                 </div>
-            </article>
-        </div>
-    </section>
 
-    <section id="reviews" class="section">
-        <div class="section-header">
-            <div>
-                <p class="eyebrow">Отзывы</p>
-                <h2>Рейтинг товара</h2>
-            </div>
-            {% if reviews_count %}
-                <div class="product-detail__rating">
-                    {{ average_rating|floatformat:1 }} из 5 на основе {{ reviews_count }} отзывов
-                </div>
-            {% endif %}
-        </div>
+                <article class="product-info-column">
+                    <div class="product-title-price">
+                        <span class="price-tag">{{ product.category.name }}</span>
+                        <h1 class="product-name">{{ product.name }}</h1>
+                        <p class="product-price">{{ product.price }} ₽</p>
+                    </div>
 
-        {% if reviews %}
-            <div class="reviews-list">
-                {% for review in reviews %}
-                    <article class="review-card surface">
-                        <div class="review-card__header">
-                            <strong>{{ review.rating }}/5</strong>
-                            <span>{{ review.user }}</span>
-                        </div>
-                        {% if review.title %}
-                            <h3>{{ review.title }}</h3>
+                    <div class="product-description">
+                        <p>{{ product.description|default:"Описание товара будет добавлено позже." }}</p>
+                        {% if reviews_count %}
+                            <p class="muted">Рейтинг {{ average_rating|floatformat:1 }} из 5 на основе {{ reviews_count }} отзывов.</p>
                         {% endif %}
-                        <p>{{ review.text }}</p>
-                    </article>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">Отзывов пока нет.</div>
-        {% endif %}
+                    </div>
 
-        <div class="surface form-card">
-            <h2>Оставить отзыв</h2>
-            {% if review_form %}
-                <form method="post" action="{% url 'reviews:product_review_add' product.slug %}" class="form-grid">
-                    {% csrf_token %}
-                    {% for field in review_form %}
-                        <div class="form-field">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {% if field.help_text %}
-                                <small class="muted">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="form-errors">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit">Отправить отзыв</button>
-                </form>
-            {% else %}
-                <p class="muted">{{ review_notice }}</p>
-            {% endif %}
+                    <div class="cart-controls product-cart-controls">
+                        {% if product.stock_quantity > 0 %}
+                            <form method="post" action="{% url 'cart:add' product.id %}" class="product-add-form quantity-form" data-quantity-form>
+                                {% csrf_token %}
+                                <div class="quantity-counter">
+                                    <button type="button" class="quantity-btn" data-action="decrease" aria-label="Уменьшить количество">−</button>
+                                    <input class="quantity-input" type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" aria-label="Количество">
+                                    <button type="button" class="quantity-btn" data-action="increase" aria-label="Увеличить количество">+</button>
+                                </div>
+                                <button type="submit" class="button button--primary add-to-cart-button">Добавить в корзину</button>
+                            </form>
+                            <p class="muted">В наличии: {{ product.stock_quantity }}. Количество проверяется перед добавлением.</p>
+                        {% else %}
+                            <button type="button" class="button button--secondary add-to-cart-button" disabled>Нет в наличии</button>
+                            <p class="muted">Товар временно недоступен для покупки.</p>
+                        {% endif %}
+                    </div>
+                </article>
+            </section>
+
+            <section class="accordion-section">
+                <div class="accordion-item active">
+                    <button type="button" class="accordion-title">
+                        <h3>Детали товара</h3>
+                        <span class="accordion-icon">⌄</span>
+                    </button>
+                    <div class="accordion-content">
+                        <ul>
+                            <li><strong>Артикул:</strong> {{ product.sku }}</li>
+                            <li><strong>Категория:</strong> {{ product.category.name }}</li>
+                            <li><strong>Остаток:</strong> {{ product.stock_quantity }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="reviews" class="reviews-section">
+                <div class="section-heading-row">
+                    <h2 class="reviews-title">Отзывы</h2>
+                    {% if reviews_count %}
+                        <span class="price-tag">{{ average_rating|floatformat:1 }} / 5</span>
+                    {% endif %}
+                </div>
+
+                {% if reviews %}
+                    <div class="reviews-grid">
+                        {% for review in reviews %}
+                            <article class="review-card">
+                                <div class="review-rating" aria-label="Оценка {{ review.rating }} из 5">
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                    {% endfor %}
+                                </div>
+                                <div class="review-body">
+                                    {% if review.title %}
+                                        <h4 class="review-heading">{{ review.title }}</h4>
+                                    {% endif %}
+                                    <p class="review-text">{{ review.text }}</p>
+                                </div>
+                                <div class="review-author">
+                                    <img src="{% static 'shop/img/avatars/avatar1.svg' %}" alt="" class="author-avatar">
+                                    <span class="author-name">{{ review.user }}</span>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">Отзывов пока нет.</div>
+                {% endif %}
+
+                <div class="account-form-container review-form-panel">
+                    <h2 class="account-form-title">Оставить отзыв</h2>
+                    {% if review_form %}
+                        <form method="post" action="{% url 'reviews:product_review_add' product.slug %}" class="auth-form">
+                            {% csrf_token %}
+                            {% for field in review_form %}
+                                <div class="InputField">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="form-errors">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="button button--primary">Отправить отзыв</button>
+                        </form>
+                    {% else %}
+                        <p class="muted">{{ review_notice }}</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="products-area product-grid-section">
+                <div class="section-heading-row">
+                    <h2 class="reviews-title">Похожие товары</h2>
+                    <a class="button button--secondary" href="{% url 'catalog:product_list' %}">Все товары</a>
+                </div>
+
+                {% if related_products %}
+                    <div class="product-grid">
+                        {% for product in related_products %}
+                            {% include "catalog/includes/product_card.html" %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">Похожие товары пока отсутствуют.</div>
+                {% endif %}
+            </section>
         </div>
-    </section>
-
-    <section class="section">
-        <div class="section-header">
-            <div>
-                <p class="eyebrow">Каталог</p>
-                <h2>Похожие товары</h2>
-            </div>
-            <a class="button secondary" href="{% url 'catalog:product_list' %}">Все товары</a>
-        </div>
-
-        {% if related_products %}
-            <div class="grid">
-                {% for product in related_products %}
-                    {% include "catalog/includes/product_card.html" %}
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">Похожие товары пока отсутствуют.</div>
-        {% endif %}
-    </section>
+    </main>
 {% endblock %}

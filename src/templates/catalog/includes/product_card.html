@@ -1,18 +1,36 @@
+{% load static %}
+
 <article class="product-card">
-    <div>
-        <div class="product-card__category">{{ product.category.name }}</div>
-        <h3>{{ product.name }}</h3>
-        <p>{{ product.description|default:"Описание товара будет добавлено позже."|truncatechars:140 }}</p>
-    </div>
-    <div class="product-meta">
-        <div>
-            <div class="price">{{ product.price }} ₽</div>
-            {% if product.stock_quantity > 0 %}
-                <div class="stock">В наличии: {{ product.stock_quantity }}</div>
+    <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card__media-link" aria-label="Открыть {{ product.name }}">
+        {% with card_image=product.images.all.0 %}
+            {% if card_image %}
+                <img src="{{ card_image.image.url }}" alt="{{ card_image.alt_text|default:product.name }}" class="product-card__image">
             {% else %}
-                <div class="stock">Нет в наличии</div>
+                <div class="product-card__image product-card__image--placeholder">
+                    <img src="{% static 'shop/img/logo.svg' %}" alt="">
+                </div>
             {% endif %}
-        </div>
-        <a class="button secondary" href="{% url 'catalog:product_detail' product.slug %}">Открыть</a>
+        {% endwith %}
+    </a>
+
+    <div class="product-card__info">
+        <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card__title-link">
+            <h4 class="product-card__name">{{ product.name }}</h4>
+        </a>
+        <p class="product-card__price">{{ product.price }} ₽</p>
+        <p class="product-card__description">{{ product.description|default:"Описание товара будет добавлено позже."|truncatechars:92 }}</p>
+    </div>
+
+    <div class="product-card__actions">
+        {% if product.stock_quantity > 0 %}
+            <form method="post" action="{% url 'cart:add' product.id %}" class="quick-add-form">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="button button--primary">В корзину</button>
+            </form>
+        {% else %}
+            <button type="button" class="button button--secondary" disabled>Нет в наличии</button>
+        {% endif %}
+        <a class="button button--secondary" href="{% url 'catalog:product_detail' product.slug %}">Подробнее</a>
     </div>
 </article>

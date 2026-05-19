@@ -1,6 +1,6 @@
 # Тестирование
 
-Актуальный результат проверок на 2026-05-19: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `159 passed`, coverage `90%`. Ручные проверки текущего UI выполнены отдельно и зафиксированы в `docs/current-state.md`.
+Актуальный результат проверок на 2026-05-20: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит перенесённые CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `159 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
 
 Документ фиксирует текущую стратегию тестирования и фактическое покрытие. Проверки должны подтверждать не только наличие кода, но и выполнение бизнес-правил проекта.
 
