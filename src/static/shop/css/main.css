@@ -140,7 +140,8 @@ header {
 }
 
 .button--secondary:hover {
-    background-color: var(--slate-200);
+    background-color: var(---dark-green);
+    border: 2px solid var(--border-dark-grey);
 }
 
 .button--primary {
