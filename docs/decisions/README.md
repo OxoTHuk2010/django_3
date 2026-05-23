@@ -4,8 +4,8 @@
 
 ## Правило актуальности
 
-- ADR `0001`-`0030` считаются принятыми и действующими, если ниже не указано ограничение.
-- Конфликты `C032`-`C039` пока открыты и требуют новых ADR перед реализацией соответствующих этапов.
+- ADR `0001`-`0037` считаются принятыми и действующими, если ниже не указано ограничение.
+- Конфликты `C032`-`C039` закрыты ADR `0031`-`0037`; при реализации этапов 23-30 сначала смотреть на соответствующий ADR.
 - Если старый ADR содержит подробные примеры будущего кода, они считаются иллюстрациями, а не обязательным способом реализации.
 - Roadmap этапов 20-31 является актуальной картой дальнейших работ.
 
@@ -21,7 +21,7 @@
 | `0006-soft-delete` | принято | Soft delete ограничен каталогом: `Category` и `Product`. |
 | `0007-username-user-login` | принято | Основной логин - `username`; email остаётся контактным полем. |
 | `0008-payment-order` | принято, требует пересмотра на этапе 25 | Один заказ может иметь несколько платежей; после `C035` checkout должен использовать payment emulator. |
-| `0009-img-source` | принято, уточняется этапом 21 | Runtime-источник изображений товара - `ProductImage`; `src/prepare` не используется напрямую. |
+| `0009-img-source` | принято, уточнено ADR `0031` | Runtime-источник изображений товара - `ProductImage`; `src/prepare` не используется напрямую. |
 | `0010-button` | принято | Кнопка покупки должна быть связана с реальным cart endpoint и не имитировать несуществующее действие. |
 | `0011-reviews-rating` | принято | Публичный рейтинг считается только по опубликованным отзывам. |
 | `0012-rule-product` | принято | Похожие товары берутся из активной категории и исключают текущий товар. |
@@ -39,19 +39,18 @@
 | `0027-api-registration-jwt` | принято, уточняется `C036` | API-регистрация создаёт пользователя и возвращает JWT pair; этап 27 добавит login alias. |
 | `0028-review-api-contract` | принято, уточняется `C036` | Review API связан с product slug и service layer; id compatibility решается отдельно. |
 | `0029-api-error-permissions-contract` | принято | API ошибки приводятся к единому JSON `{code, detail, fields}`; чужие заказы скрываются через 404. |
-| `0030-seed-data-policy` | принято, требует обновления на этапе 22 | Seed идемпотентен, безопасен и не зависит от `src/prepare`; demo-data нужно русифицировать и расширить. |
+| `0030-seed-data-policy` | принято, уточнено ADR `0036` | Seed идемпотентен, безопасен и не зависит от `src/prepare`; demo-data русифицируется при сохранении ASCII technical keys. |
+| `0031-myshop-brand-and-runtime-assets` | принято | Hop & Barley остаётся reference-концептом; runtime UI, branding и tracked assets принадлежат `MyShop` и не зависят от `src/prepare`. |
+| `0032-admin-ui-and-dashboard` | принято | Улучшаем стандартный Django Admin через branding, шаблоны, стили и staff dashboard без замены базовой admin-механики. |
+| `0033-payment-emulator` | принято | Checkout использует `apps.payment_emulator` с весами `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`; `payments` остаётся владельцем `Payment`. |
+| `0034-api-compatibility-routes` | принято | Slug routes сохраняются; id/login/cart compatibility routes добавляются поверх существующего API и переиспользуют service/error contracts. |
+| `0035-production-runtime` | принято | Dev stand остаётся на `runserver`, production runtime использует Gunicorn, Nginx, HTTPS, volumes, `collectstatic` и env-based secure settings. |
+| `0036-russian-demo-data` | принято | Пользовательские demo/template данные русифицируются, а `slug`, `SKU`, `username` и provider ids остаются ASCII. |
+| `0037-analytics-service-layer` | принято | Admin dashboard и GraphQL analytics используют общий read/service layer для одинаковых метрик и единых тестов агрегатов. |
 
 ## Будущие ADR
 
-Перед реализацией этапов 21-30 нужно создать компактные ADR:
-
-- `0031-myshop-brand-and-runtime-assets` для `C032` и `C033`.
-- `0032-admin-ui-and-dashboard` для `C034`.
-- `0033-payment-emulator` для `C035`.
-- `0034-api-compatibility-routes` для `C036`.
-- `0035-production-runtime` для `C037`.
-- `0036-russian-demo-data` для `C038`.
-- `0037-analytics-service-layer` для `C039`.
+На текущий момент отдельные будущие ADR не запланированы. Новые ADR нужны, если будущая реализация меняет границы приложений, публичные API contracts, security model, production runtime или правила работы с данными.
 
 ## Требования к новым ADR
 
