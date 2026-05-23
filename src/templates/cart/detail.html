@@ -52,7 +52,7 @@
                                 </div>
 
                                 <div class="cart-item__actions">
-                                    <form method="post" action="{% url 'cart:update' item.product.id %}" class="cart-item__quantity-selector quantity-form" data-quantity-form>
+                                    <form method="post" action="{% url 'cart:update' item.product.id %}" class="cart-item__quantity-selector quantity-form" data-quantity-form data-auto-submit="true">
                                         {% csrf_token %}
                                         <button type="button" class="quantity-btn-cart" data-action="decrease" aria-label="Уменьшить количество">−</button>
                                         <input class="quantity-input quantity-input--compact" type="number" name="quantity" value="{{ item.quantity }}" min="1" aria-label="Количество">

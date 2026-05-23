@@ -136,3 +136,28 @@ def test_cart_detail_has_checkout_link_for_valid_cart(client, product):
     assert response.status_code == 200
     assert_response_contains(response, reverse("orders:checkout"))
     assert_response_contains(response, "Оформить заказ")
+
+
+def test_cart_detail_quantity_form_submits_after_plus_or_minus(client, product):
+    """Кнопки +/- в корзине помечены автосабмитом для немедленного пересчёта."""
+
+    session = client.session
+    session["cart"] = {str(product.id): 2}
+    session.save()
+
+    response = client.get(reverse("cart:detail"))
+
+    assert response.status_code == 200
+    assert_response_contains(response, f'action="{reverse("cart:update", kwargs={"product_id": product.id})}"')
+    assert_response_contains(response, 'data-auto-submit="true"')
+
+
+def test_product_detail_quantity_form_does_not_auto_submit_add_to_cart(client, product):
+    """Кнопки +/- на карточке товара меняют количество без автодобавления в корзину."""
+
+    response = client.get(reverse("catalog:product_detail", kwargs={"slug": product.slug}))
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert f'action="{reverse("cart:add", kwargs={"product_id": product.id})}"' in content
+    assert 'data-auto-submit="true"' not in content

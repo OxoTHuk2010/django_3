@@ -19,7 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
             button.addEventListener("click", () => {
                 const current = Number(input.value || input.min || 1);
                 const next = button.dataset.action === "increase" ? current + 1 : current - 1;
-                input.value = String(clamp(next));
+                const normalizedNext = clamp(next);
+                input.value = String(normalizedNext);
+
+                if (form.dataset.autoSubmit === "true" && normalizedNext !== current) {
+                    if (typeof form.requestSubmit === "function") {
+                        form.requestSubmit();
+                    } else {
+                        form.submit();
+                    }
+                }
             });
         });
     });
