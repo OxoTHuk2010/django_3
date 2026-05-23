@@ -169,6 +169,109 @@
     margin-top: 0.5rem;
 }
 
+.admin-shop-analytics {
+    display: grid;
+    gap: 1rem;
+}
+
+.admin-shop-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.admin-shop-section-heading h2 {
+    margin: 0.15rem 0 0;
+}
+
+.admin-shop-periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.admin-shop-periods a {
+    border: 1px solid var(--admin-shop-border);
+    border-radius: 999px;
+    color: var(--admin-shop-accent-strong);
+    padding: 0.35rem 0.7rem;
+    text-decoration: none;
+}
+
+.admin-shop-periods a.is-active {
+    background: var(--admin-shop-accent);
+    color: #fffaf2;
+}
+
+.admin-shop-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 0.8rem;
+}
+
+.admin-shop-metric {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid var(--admin-shop-border);
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.admin-shop-metric span {
+    color: var(--admin-shop-muted);
+    font-size: 0.82rem;
+}
+
+.admin-shop-metric strong {
+    color: var(--admin-shop-ink);
+    font-size: 1.35rem;
+}
+
+.admin-shop-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+}
+
+.admin-shop-list-panel {
+    padding: 1rem;
+    border: 1px solid var(--admin-shop-border);
+    border-radius: 1rem;
+    background: var(--admin-shop-panel);
+}
+
+.admin-shop-list-panel h3 {
+    margin-top: 0;
+}
+
+.admin-shop-list-panel ul {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-shop-list-panel li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--admin-shop-border);
+    padding-bottom: 0.55rem;
+}
+
+.admin-shop-list-panel li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-shop-list-panel span {
+    color: var(--admin-shop-muted);
+    white-space: nowrap;
+}
+
 .admin-shop-badge {
     display: inline-flex;
     align-items: center;
@@ -201,6 +304,11 @@
 
 @media (max-width: 760px) {
     .admin-shop-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-shop-section-heading {
         align-items: flex-start;
         flex-direction: column;
     }

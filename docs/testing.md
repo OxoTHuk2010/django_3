@@ -1,6 +1,6 @@
 # Тестирование
 
-Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `162 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
+Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `166 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
 
 Документ фиксирует текущую стратегию тестирования и фактическое покрытие. Проверки должны подтверждать не только наличие кода, но и выполнение бизнес-правил проекта.
 
@@ -32,7 +32,7 @@ docker compose exec -T web python manage.py showmigrations
 - `manage.py check` — проходит.
 - `ruff check .` — проходит.
 - `makemigrations --check --dry-run` — `No changes detected`.
-- `pytest` — `162 passed`.
+- `pytest` — `166 passed`.
 - Coverage — `90%`.
 
 ## Последний Docker-результат
@@ -88,8 +88,26 @@ docker compose exec -T web python manage.py showmigrations
 - корректное изменение статусов и служебных полей после выполнения actions.
 - staff dashboard `/admin/`;
 - branding `MyShop Admin`;
+- summary-метрики админской аналитики;
+- фильтр периода админской аналитики;
 - бейджи наличия и видимости товара в `ProductAdmin`;
 - быстрые ссылки `ProductAdmin` на редактирование и публичную карточку товара.
+
+### Аналитика
+
+Покрыты:
+
+- нормализация неизвестного периода к `30d`;
+- расчёт выручки по успешным платежам;
+- расчёт количества заказов;
+- расчёт среднего чека по подтверждённым заказам;
+- расчёт новых пользователей;
+- расчёт оплаченных заказов;
+- расчёт ожидающих оплат;
+- расчёт неуспешных платежей;
+- список товаров с низким остатком;
+- топ товаров по продажам;
+- список отзывов на модерации.
 
 ### Публичный каталог
 

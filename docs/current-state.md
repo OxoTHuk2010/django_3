@@ -17,13 +17,14 @@
 - Swagger/OpenAPI подключён через drf-spectacular;
 - demo-data создаётся management command `seed_demo_data`, команда идемпотентна и защищает destructive reset;
 - современная админка реализована как кастомизация стандартного Django Admin: branding, staff dashboard, отдельная admin-статика, верхняя навигация, бейджи статусов товаров и быстрые ссылки в `ProductAdmin`;
+- админская аналитика реализована на `/admin/` через общий read/service слой `apps.common.analytics`: метрики, периодный фильтр, низкие остатки, топ товаров и отзывы на модерации;
 - UI-шаблоны и runtime-статика перенесены в `src/templates` и `src/static/shop`, при этом `src/prepare` остаётся reference/source, а не runtime-зависимостью;
 - reference UI перенесён в рабочие Django-шаблоны с русской локализацией и текущим брендом `MyShop`: header/footer, hero/banner, sidebar filters, product grid, карточки, auth forms, корзина и checkout;
 - runtime JS подключён из `src/static/shop/js/main.js` как progressive enhancement для аккордеонов, фильтров и quantity controls; симуляция login/cart из reference-прототипа не переносилась, потому что проект использует реальные Django-сессии и POST-формы;
 - reference product images перенесены в `src/static/shop/img/products`, а `seed_demo_data` создаёт штатные `ProductImage` через копирование в `MEDIA_ROOT/demo/products`;
-- этапы 20, 21, 22 и 23 закрыты: baseline зафиксирован, бренд runtime UI — `MyShop`, пользовательские UI-тексты и demo-data русскоязычные, CSS/JS/images находятся в tracked static, админка улучшена без замены стандартного Django Admin.
+- этапы 20, 21, 22, 23 и 24 закрыты: baseline зафиксирован, бренд runtime UI — `MyShop`, пользовательские UI-тексты и demo-data русскоязычные, CSS/JS/images находятся в tracked static, админка улучшена без замены стандартного Django Admin, аналитика вынесена в общий service layer.
 
-Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator, не завершена будущая админская аналитика.
+Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator.
 
 ## Проверенный baseline
 
@@ -43,7 +44,7 @@
 - `makemigrations --check --dry-run` сообщает `No changes detected`;
 - `collectstatic --dry-run --noinput --clear` видит `src/static/shop/css/main.css`, `src/static/shop/js/main.js`, `src/static/admin_shop/css/admin.css` и перенесённые изображения, проходит;
 - `ruff check` проходит;
-- `pytest` проходит: `162 passed`, coverage `90%`;
+- `pytest` проходит: `166 passed`, coverage `90%`;
 - единственное предупреждение тестового прогона: `InsecureKeyLengthWarning` из SimpleJWT из-за короткого dev `SECRET_KEY`; это не блокирует локальную разработку, но production secret должен быть длинным и внешним.
 
 Ручные проверки предыдущего UI были выполнены до переноса reference-дизайна. После текущих изменений выполнена автоматическая и HTTP smoke-проверка; отдельный визуальный ручной цикл по браузеру нужен перед фиксацией финального UI baseline.
@@ -65,7 +66,6 @@
 
 Следующие направления затрагивают архитектурные решения и должны начинаться с компактного ADR или обновления существующего решения:
 
-- админская аналитика и будущие агрегаты;
 - отдельный payment emulator вместо текущего mock-success checkout;
 - email-уведомления;
 - REST API compatibility routes;
@@ -86,5 +86,5 @@
 ## Рекомендуемый порядок ближайших работ
 
 1. Повторить полный ручной и автоматический baseline после UI/demo-data переноса.
-2. Закрыть этап 24: админская аналитика.
-3. После этого выбрать один крупный архитектурный трек: payment emulator, CI или production runtime.
+2. Закрыть этап 25: payment emulator.
+3. После этого выбрать один крупный архитектурный трек: email, compatibility API, GraphQL, CI или production runtime.

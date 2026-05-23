@@ -40,6 +40,103 @@
         </a>
     </div>
 
+    {% if analytics %}
+        <section class="admin-shop-analytics" aria-label="Админская аналитика">
+            <div class="admin-shop-section-heading">
+                <div>
+                    <p class="admin-shop-eyebrow">Analytics</p>
+                    <h2>Аналитика за период: {{ analytics.period.label }}</h2>
+                </div>
+                <div class="admin-shop-periods" aria-label="Фильтр периода">
+                    {% for option in analytics.period.options %}
+                        <a href="?period={{ option.0 }}" class="{% if option.0 == analytics.period.key %}is-active{% endif %}">{{ option.1 }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-shop-metric-grid">
+                <article class="admin-shop-metric">
+                    <span>Выручка</span>
+                    <strong>{{ analytics.summary.revenue }} ₽</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Заказы</span>
+                    <strong>{{ analytics.summary.orders_count }}</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Средний чек</span>
+                    <strong>{{ analytics.summary.average_order_value }} ₽</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Новые пользователи</span>
+                    <strong>{{ analytics.summary.new_users_count }}</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Оплаченные заказы</span>
+                    <strong>{{ analytics.summary.paid_orders_count }}</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Ожидают оплаты</span>
+                    <strong>{{ analytics.summary.pending_payments_count }}</strong>
+                </article>
+                <article class="admin-shop-metric">
+                    <span>Неуспешные платежи</span>
+                    <strong>{{ analytics.summary.failed_payments_count }}</strong>
+                </article>
+            </div>
+
+            <div class="admin-shop-analytics-grid">
+                <section class="admin-shop-list-panel">
+                    <h3>Низкий остаток</h3>
+                    {% if analytics.low_stock_products %}
+                        <ul>
+                            {% for product in analytics.low_stock_products %}
+                                <li>
+                                    <a href="{{ product.admin_url }}">{{ product.name }}</a>
+                                    <span>{{ product.stock_quantity }} шт.</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Нет товаров с низким остатком.</p>
+                    {% endif %}
+                </section>
+
+                <section class="admin-shop-list-panel">
+                    <h3>Топ товаров по продажам</h3>
+                    {% if analytics.top_products %}
+                        <ul>
+                            {% for product in analytics.top_products %}
+                                <li>
+                                    <a href="{{ product.admin_url }}">{{ product.product__name }}</a>
+                                    <span>{{ product.sold_quantity }} шт.</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>За выбранный период продаж нет.</p>
+                    {% endif %}
+                </section>
+
+                <section class="admin-shop-list-panel">
+                    <h3>Отзывы на модерации</h3>
+                    {% if analytics.pending_reviews %}
+                        <ul>
+                            {% for review in analytics.pending_reviews %}
+                                <li>
+                                    <a href="{{ review.admin_url }}">{{ review.product__name }}</a>
+                                    <span>{{ review.user__username }} · {{ review.rating }}/5</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Нет отзывов на модерации.</p>
+                    {% endif %}
+                </section>
+            </div>
+        </section>
+    {% endif %}
+
     {% if app_list %}
         <div class="admin-shop-standard-apps">
             <h2>Стандартные разделы Django Admin</h2>

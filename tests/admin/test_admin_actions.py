@@ -120,6 +120,17 @@ def test_admin_index_uses_myshop_dashboard(admin_client):
     assert "Панель управления MyShop" in content
     assert "Товары" in content
     assert "Заказы" in content
+    assert "Аналитика за период" in content
+    assert "Выручка" in content
+
+
+def test_admin_index_requires_staff_access(client):
+    """Гость не может открыть staff dashboard с аналитикой."""
+
+    response = client.get("/admin/")
+
+    assert response.status_code == 302
+    assert "/admin/login/" in response["Location"]
 
 
 def test_order_admin_can_cancel_orders(order):
