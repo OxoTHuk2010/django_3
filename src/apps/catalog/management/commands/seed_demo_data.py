@@ -398,7 +398,7 @@ class Command(BaseCommand):
                 status=Payment.Status.SUCCEEDED,
                 method=Payment.Method.OTHER,
                 amount=order.total_price,
-                provider="mock",
+                provider="payment_emulator",
                 provider_payment_id=f"demo-payment-{user.username}",
                 paid_at=timezone.now(),
             )

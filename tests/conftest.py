@@ -106,13 +106,13 @@ def order_item(db, order, product):
 
 @pytest.fixture
 def payment(db, order):
-    """Начальная попытка оплаты заказа через mock-провайдера."""
+    """Начальная попытка оплаты заказа через локальный эмулятор оплаты."""
     return baker.make(
         "payments.Payment",
         order=order,
         amount=Decimal("150000.00"),
         status=Payment.Status.PENDING,
-        provider="mock",
+        provider="payment_emulator",
     )
 
 

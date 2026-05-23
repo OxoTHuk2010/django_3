@@ -14,7 +14,7 @@ MyShop — учебный проект интернет-магазина на Dj
 - оформление заказа для авторизованного пользователя;
 - регистрация, вход, профиль, смена пароля и история заказов;
 - отзывы на товары;
-- mock-оплата;
+- эмулятор оплаты с успешными, неуспешными, отменёнными и ожидающими исходами;
 - современная админка на базе стандартного Django Admin;
 - админская аналитика на `/admin/`;
 - REST API;
@@ -57,6 +57,7 @@ myshop/
 │   │   ├── orders/
 │   │   ├── reviews/
 │   │   ├── payments/
+│   │   ├── payment_emulator/
 │   │   └── api/
 │   │
 │   ├── templates/
@@ -99,7 +100,14 @@ myshop/
 │       ├── 0027-api-registration-jwt.md
 │       ├── 0028-review-api-contract.md
 │       ├── 0029-api-error-permissions-contract.md
-│       └── 0030-seed-data-policy.md
+│       ├── 0030-seed-data-policy.md
+│       ├── 0031-myshop-brand-and-runtime-assets.md
+│       ├── 0032-admin-ui-and-dashboard.md
+│       ├── 0033-payment-emulator.md
+│       ├── 0034-api-compatibility-routes.md
+│       ├── 0035-production-runtime.md
+│       ├── 0036-russian-demo-data.md
+│       └── 0037-analytics-service-layer.md
 │
 ├── tests/
 ├── docker/

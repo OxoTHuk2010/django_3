@@ -1,8 +1,8 @@
 # Roadmap
 
-Актуальный baseline проекта на 2026-05-20 вынесен в `docs/current-state.md`. Если подробный чек-лист ниже расходится с этим снимком, приоритет для планирования имеет `docs/current-state.md`, а roadmap нужно синхронизировать перед началом нового крупного этапа.
+Актуальный baseline проекта на 2026-05-24 вынесен в `docs/current-state.md`. Если подробный чек-лист ниже расходится с этим снимком, приоритет для планирования имеет `docs/current-state.md`, а roadmap нужно синхронизировать перед началом нового крупного этапа.
 
-К реализации уже сейчас готовы: UX-полировка web-флоу, финальная clean-проверка MVP по этапу 19 и современная админка по этапу 23. Этапы аналитики, payment emulator, email, compatibility API, GraphQL, CI и production runtime лучше начинать с компактного ADR, потому что они меняют публичные контракты или инфраструктурные границы.
+Этапы 20-25 закрыты: baseline зафиксирован, runtime UI и demo-data русскоязычные, стандартная Django Admin улучшена, аналитика вынесена в общий service layer, checkout переведён на weighted payment emulator. Следующие крупные направления: email, compatibility API, GraphQL, CI и production runtime.
 
 Roadmap фиксирует текущий прогресс и ближайшие шаги. Основные документы (`README`, `architecture`, `database`, `business-rules`) описывают целевую систему, а этот файл показывает фактическое состояние реализации.
 
@@ -14,22 +14,21 @@ Roadmap фиксирует текущий прогресс и ближайшие
 
 ## Последняя локальная проверка
 
-Дата проверки: 2026-05-18.
+Дата проверки: 2026-05-24.
 
 - [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит, `System check identified no issues (0 silenced)`.
 - [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит, `All checks passed!`.
-- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `138 passed`, покрытие `94%`.
+- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `179 passed`, покрытие `90%`.
 
 ## Последняя Docker-проверка
 
-Дата проверки: 2026-05-17.
+Дата проверки: 2026-05-24.
 
 - [x] `docker compose up -d --build` — контейнеры пересобраны и запущены.
 - [x] `docker compose ps` — `db` healthy, `web` up, порт `8000` опубликован.
 - [x] `docker compose exec -T web python manage.py check` — проходит внутри контейнера.
 - [x] `docker compose exec -T web python manage.py makemigrations --check --dry-run` — проходит, `No changes detected`.
-- [x] `Invoke-WebRequest http://localhost:8000/cart/` — возвращает HTTP 200.
-- [x] `Invoke-WebRequest http://localhost:8000/products/` — возвращает HTTP 200.
+- [x] `docker compose exec -T web python manage.py collectstatic --dry-run --noinput --clear` — проходит, storefront/admin static видны.
 
 Правило для следующих проверок: миграции и состояние БД проверять через актуально пересобранный `docker compose`, потому что локальная БД может не отражать контейнерную среду.
 
@@ -227,9 +226,10 @@ Definition of Done этапа 8:
 - [x] Товары блокируются в стабильном порядке по `Product.id`.
 - [x] Создаются `OrderItem` со snapshot цены и названия.
 - [x] Остатки товаров уменьшаются после создания позиций заказа.
-- [x] Создаётся успешный mock payment с `provider="mock"`.
+- [x] Первичная MVP-логика успешной mock-оплаты была реализована на этапе 9.
+- [x] На этапе 25 checkout переведён на `apps.payment_emulator` с `provider="payment_emulator"`.
 - [x] После успешного checkout заказ получает статус `paid`.
-- [x] Корзина очищается только после успешного создания заказа.
+- [x] Корзина очищается только после успешной оплаты.
 - [x] При нехватке остатков checkout работает по all-or-nothing: заказ, позиции и платёж не создаются.
 - [x] Добавлены service tests checkout.
 - [x] Добавлены web tests checkout.
@@ -242,7 +242,7 @@ Definition of Done этапа 9:
 - [x] Заказ создаётся из текущего snapshot корзины.
 - [x] `OrderItem.price` и `OrderItem.product_name` фиксируют snapshot данных товара.
 - [x] Остатки уменьшаются.
-- [x] Создаётся успешная mock-оплата.
+- [x] Создаётся платёж через `apps.payment_emulator`.
 - [x] Корзина очищается после успешного заказа.
 
 ## Этап 10. Пользователи и личный кабинет
@@ -382,7 +382,7 @@ Definition of Done этапа 10:
 
 ## Следующий детализированный план доведения до ТЗ
 
-Этот блок фиксирует следующий слой работ без изменения кода на текущем шаге. Цель — довести проект до полного покрытия исходного ТЗ и новых требований: современный и удобный UI, обновлённая админка, аналитика, GraphQL, CI, production runtime через Nginx/Gunicorn/HTTPS, отдельный payment emulator и русскоязычные demo-данные.
+Этот блок фиксирует следующий слой работ по доведению проекта до полного покрытия исходного ТЗ и новых требований: современный и удобный UI, обновлённая админка, аналитика, GraphQL, CI, production runtime через Nginx/Gunicorn/HTTPS, payment emulator и русскоязычные demo-данные.
 
 ### Этап 20. Актуализация требований и baseline
 
@@ -397,6 +397,7 @@ Definition of Done этапа 10:
 - [x] Зафиксирована последняя локальная проверка: `ruff check` проходит.
 - [x] Зафиксирована последняя локальная проверка: `pytest` проходит, `159 passed`, coverage `90%`.
 - [x] Отмечено, что текущий roadmap был оптимистичен: функциональный MVP готов, но production runtime, CI, payment emulator и аналитика остаются отдельными этапами.
+- [x] Позже этапы аналитики и payment emulator закрыты отдельными срезами.
 - [x] Список закрытых требований ТЗ вынесен в `docs/current-state.md`.
 - [x] Список незакрытых требований и остаточных рисков вынесен в `docs/current-state.md`.
 - [x] Добавлен сжатый индекс ADR в `docs/decisions/README.md`.
@@ -452,11 +453,11 @@ Definition of Done этапа 21:
 - [x] Названия и описания товаров адаптированы на русском языке под бренд `MyShop`.
 - [x] Reference product images перенесены в tracked `src/static/shop/img/products`.
 - [x] Seed-команда копирует изображения в `MEDIA_ROOT/demo/products` и создаёт штатные `ProductImage`.
-- [x] Добавлены demo-пользователи, demo-заказы, успешные mock-платежи и опубликованные отзывы.
+- [x] Добавлены demo-пользователи, demo-заказы, успешные платежи через `payment_emulator` и опубликованные отзывы.
 - [x] Отзывы русскоязычные и создаются идемпотентно по паре user + product.
 - [x] Имена покупателей, адреса доставки и комментарии к заказам приведены к русскоязычному формату.
 - [x] Технические ключи оставлены ASCII: `slug`, `SKU`, `username`, `provider_payment_id`.
-- [x] Добавлены demo-заказы в статусах `paid` и `completed`; расширенные сценарии отмены/неуспешной оплаты остаются зоной этапа payment emulator.
+- [x] Добавлены demo-заказы в статусах `paid` и `completed`; расширенные demo-сценарии отмены/неуспешной оплаты можно добавить отдельным улучшением при необходимости.
 - [x] Demo-данные достаточны для проверки витрины, карточек товара, заказов, отзывов и базовой аналитики.
 - [x] Идемпотентность команды сохранена.
 - [x] Защита destructive reset через `--reset --yes`, `DEBUG=True` и local/demo ограничения сохранена.
@@ -558,41 +559,49 @@ Definition of Done этапа 24:
 
 ### Этап 25. Payment Emulator
 
-Статус: запланирован.
+Статус: закрыт 2026-05-24.
 
-- [ ] Добавить отдельное Django-приложение `apps.payment_emulator`.
-- [ ] Зафиксировать конфликт `C035` перед изменением checkout.
-- [ ] Оставить `payments` владельцем модели `Payment`.
-- [ ] Ограничить ответственность `payment_emulator` симуляцией результата провайдера.
-- [ ] Добавить дефолтный вес `succeeded = 7`.
-- [ ] Добавить дефолтный вес `failed = 1`.
-- [ ] Добавить дефолтный вес `cancelled = 1`.
-- [ ] Добавить дефолтный вес `pending = 1`.
-- [ ] Сделать random injectable/deterministic для тестов.
-- [ ] Перевести checkout с always-success mock на результат emulator.
-- [ ] Для `succeeded`: заказ получает `paid`.
-- [ ] Для `succeeded`: payment получает `succeeded`.
-- [ ] Для `succeeded`: остатки уменьшаются.
-- [ ] Для `succeeded`: корзина очищается.
-- [ ] Для `failed`: заказ не считается оплаченным.
-- [ ] Для `failed`: payment получает `failed`.
-- [ ] Для `failed`: остатки не уменьшаются.
-- [ ] Для `failed`: корзина сохраняется.
-- [ ] Для `cancelled`: payment получает `cancelled`.
-- [ ] Для `cancelled`: остатки не уменьшаются.
-- [ ] Для `cancelled`: корзина сохраняется.
-- [ ] Для `pending`: заказ и payment остаются ожидающими.
-- [ ] Для `pending`: остатки не уменьшаются.
-- [ ] Для `pending`: корзина сохраняется до финального решения.
-- [ ] Описать поведение в `docs/business-rules.md` после реализации.
-- [ ] Обновить README и API-документацию после реализации.
+- [x] Добавить отдельное Django-приложение `apps.payment_emulator`.
+- [x] Зафиксировать конфликт `C035` перед изменением checkout.
+- [x] Оставить `payments` владельцем модели `Payment`.
+- [x] Ограничить ответственность `payment_emulator` симуляцией результата провайдера.
+- [x] Добавить дефолтный вес `succeeded = 7`.
+- [x] Добавить дефолтный вес `failed = 1`.
+- [x] Добавить дефолтный вес `cancelled = 1`.
+- [x] Добавить дефолтный вес `pending = 1`.
+- [x] Сделать random injectable/deterministic для тестов.
+- [x] Перевести checkout с always-success mock на результат emulator.
+- [x] Для `succeeded`: заказ получает `paid`.
+- [x] Для `succeeded`: payment получает `succeeded`.
+- [x] Для `succeeded`: остатки уменьшаются.
+- [x] Для `succeeded`: корзина очищается.
+- [x] Для `failed`: заказ не считается оплаченным.
+- [x] Для `failed`: payment получает `failed`.
+- [x] Для `failed`: остатки не уменьшаются.
+- [x] Для `failed`: корзина сохраняется.
+- [x] Для `cancelled`: payment получает `cancelled`.
+- [x] Для `cancelled`: остатки не уменьшаются.
+- [x] Для `cancelled`: корзина сохраняется.
+- [x] Для `pending`: заказ и payment остаются ожидающими.
+- [x] Для `pending`: остатки не уменьшаются.
+- [x] Для `pending`: корзина сохраняется до финального решения.
+- [x] Описать поведение в `docs/business-rules.md` после реализации.
+- [x] Обновить README и API-документацию после реализации.
+
+Реализовано:
+
+- `apps.payment_emulator` содержит weighted выбор исхода оплаты и не владеет моделью `Payment`.
+- `DEFAULT_PAYMENT_OUTCOME_WEIGHTS`: `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`.
+- `orders.services.create_order_from_cart()` возвращает `CheckoutResult` и очищает корзину только при успешном outcome.
+- Web checkout и API checkout сохраняют корзину при `failed`, `cancelled` и `pending`.
+- Service, web и API tests используют deterministic payment outcome, поэтому проверки не зависят от настоящего random.
 
 Definition of Done этапа 25:
 
-- [ ] В roadmap зафиксированы статусы и веса.
-- [ ] В conflicts описан конфликт с текущим always-success mock.
-- [ ] Future tests не flaky.
-- [ ] Checkout явно различает successful и non-successful outcomes.
+- [x] В roadmap зафиксированы статусы и веса.
+- [x] В conflicts описан конфликт с текущим always-success mock.
+- [x] Future tests не flaky.
+- [x] Checkout явно различает successful и non-successful outcomes.
 
 ### Этап 26. Email-уведомления
 

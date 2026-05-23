@@ -443,7 +443,7 @@ new
 
 ## Demo-платежи
 
-Для demo-заказов seed-команда может создавать mock-платежи.
+Для demo-заказов seed-команда может создавать локальные demo-платежи через `provider=payment_emulator`.
 
 Рекомендуемый набор:
 
@@ -456,8 +456,8 @@ new
 Если в текущей модели Payment уже есть provider/status, использовать:
 
 ```text
-provider = mock
-status = paid
+provider = payment_emulator
+status = succeeded
 ```
 
 или фактические значения enum из модели.

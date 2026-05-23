@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
@@ -10,6 +11,7 @@ from django.utils import timezone
 from apps.cart.services import CartSnapshot
 from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem
+from apps.payment_emulator.services import PaymentEmulatorResult, emulate_payment_result
 from apps.payments.models import Payment
 
 
@@ -27,13 +29,29 @@ class CheckoutLine:
     total_price: Decimal
 
 
+@dataclass(frozen=True)
+class CheckoutResult:
+    """Результат checkout с решением, можно ли очищать корзину."""
+
+    order: Order
+    payment: Payment
+    payment_result: PaymentEmulatorResult
+
+    @property
+    def should_clear_cart(self) -> bool:
+        """Корзина очищается только после успешной оплаты."""
+
+        return self.payment_result.is_successful
+
+
 def create_order_from_cart(
     *,
     user,
     cart_snapshot: CartSnapshot,
     shipping_data: dict[str, Any],
-) -> Order:
-    """Создать оплаченный mock-заказ из подтверждённого snapshot корзины."""
+    payment_random_source: Callable[[int], int] | None = None,
+) -> CheckoutResult:
+    """Создать заказ из snapshot корзины и применить результат payment emulator."""
 
     if not getattr(user, "is_authenticated", False):
         raise CheckoutError("Оформление заказа доступно только авторизованным пользователям.")
@@ -50,9 +68,12 @@ def create_order_from_cart(
         checkout_lines = _build_checkout_lines(snapshot_items, locked_products)
         total_price = sum((line.total_price for line in checkout_lines), Decimal("0.00"))
 
+        payment_result = emulate_payment_result(random_source=payment_random_source)
+        order_status = Order.Status.PAID if payment_result.is_successful else Order.Status.NEW
+
         order = Order.objects.create(
             user=user,
-            status=Order.Status.PAID,
+            status=order_status,
             customer_name=shipping_data["customer_name"],
             customer_email=shipping_data["customer_email"],
             customer_phone=shipping_data["customer_phone"],
@@ -70,20 +91,26 @@ def create_order_from_cart(
                 quantity=line.quantity,
             )
 
-        for line in checkout_lines:
-            line.product.stock_quantity -= line.quantity
-            line.product.save(update_fields=["stock_quantity", "updated_at"])
+        if payment_result.is_successful:
+            for line in checkout_lines:
+                line.product.stock_quantity -= line.quantity
+                line.product.save(update_fields=["stock_quantity", "updated_at"])
 
-        Payment.objects.create(
+        payment = Payment.objects.create(
             order=order,
-            status=Payment.Status.SUCCEEDED,
+            status=payment_result.status,
             method=Payment.Method.OTHER,
             amount=total_price,
-            provider="mock",
-            paid_at=timezone.now(),
+            provider=payment_result.provider,
+            provider_payment_id=payment_result.provider_payment_id,
+            paid_at=timezone.now() if payment_result.is_successful else None,
         )
 
-    return order
+    return CheckoutResult(
+        order=order,
+        payment=payment,
+        payment_result=payment_result,
+    )
 
 
 def _get_locked_products(snapshot_items) -> dict[int, Product]:

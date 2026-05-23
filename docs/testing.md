@@ -1,6 +1,6 @@
 # Тестирование
 
-Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `166 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
+Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `179 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
 
 Документ фиксирует текущую стратегию тестирования и фактическое покрытие. Проверки должны подтверждать не только наличие кода, но и выполнение бизнес-правил проекта.
 
@@ -32,7 +32,7 @@ docker compose exec -T web python manage.py showmigrations
 - `manage.py check` — проходит.
 - `ruff check .` — проходит.
 - `makemigrations --check --dry-run` — `No changes detected`.
-- `pytest` — `166 passed`.
+- `pytest` — `179 passed`.
 - Coverage — `90%`.
 
 ## Последний Docker-результат
@@ -109,6 +109,15 @@ docker compose exec -T web python manage.py showmigrations
 - топ товаров по продажам;
 - список отзывов на модерации.
 
+### Payment Emulator
+
+Покрыты:
+
+- дефолтные веса `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`;
+- детерминированный выбор каждого исхода оплаты через подменяемый источник случайности;
+- защита от некорректного значения random source вне допустимого диапазона;
+- отсутствие flaky-тестов на настоящем random.
+
 ### Публичный каталог
 
 Покрыты:
@@ -173,8 +182,10 @@ docker compose exec -T web python manage.py showmigrations
 - создание заказа из валидной корзины;
 - создание `OrderItem` со snapshot цены и названия товара;
 - уменьшение остатков после успешного заказа;
-- создание успешного mock-платежа;
+- создание успешного платежа через payment emulator;
 - очистка DB-корзины после успешного web-checkout;
+- сохранение корзины при неуспешной оплате;
+- отсутствие списания остатков при `failed`, `cancelled` и `pending`;
 - повторная проверка остатков внутри транзакции;
 - отсутствие частичного заказа, если остаток изменился перед checkout;
 - запрет создания заказа для гостя на уровне service-layer.
@@ -218,6 +229,7 @@ docker compose exec -T web python manage.py showmigrations
 - JWT-защита API-заказов;
 - создание заказа из текущей API-корзины;
 - очистка корзины после успешного API checkout;
+- сохранение API-корзины после неуспешного payment outcome;
 - доступ только к своим заказам;
 - API-регистрация с выдачей JWT pair;
 - валидация уникальности email при API-регистрации;
@@ -244,8 +256,11 @@ docker compose exec -T web python manage.py showmigrations
 
 Эти проверки появятся после реализации соответствующих этапов:
 
-- API endpoints;
-- JWT-флоу API.
+- email-уведомления после checkout;
+- compatibility routes REST API;
+- GraphQL analytics;
+- CI pipeline;
+- production runtime.
 
 ## Правило добавления тестов
 

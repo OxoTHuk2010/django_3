@@ -60,6 +60,7 @@ INSTALLED_APPS += [
     "apps.catalog",
     "apps.common",
     "apps.orders",
+    "apps.payment_emulator",
     "apps.payments",
     "apps.reviews",
     "apps.users",

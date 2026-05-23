@@ -39,7 +39,7 @@ class OrderListCreateAPIView(OrderQuerysetMixin, ListAPIView):
         service_request = SimpleNamespace(user=request.user, session={})
         cart_snapshot = get_cart_snapshot(service_request)
         try:
-            order = create_order_from_cart(
+            checkout_result = create_order_from_cart(
                 user=request.user,
                 cart_snapshot=cart_snapshot,
                 shipping_data=serializer.to_shipping_data(),
@@ -51,8 +51,10 @@ class OrderListCreateAPIView(OrderQuerysetMixin, ListAPIView):
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        clear_cart(service_request)
-        response_serializer = OrderSerializer(order)
+        if checkout_result.should_clear_cart:
+            clear_cart(service_request)
+
+        response_serializer = OrderSerializer(checkout_result.order)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
 

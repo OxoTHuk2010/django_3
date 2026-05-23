@@ -20,7 +20,7 @@
 | `0005-domain-model` | принято | Домен разделён на `users`, `catalog`, `cart`, `orders`, `reviews`, `payments`, `api`. |
 | `0006-soft-delete` | принято | Soft delete ограничен каталогом: `Category` и `Product`. |
 | `0007-username-user-login` | принято | Основной логин - `username`; email остаётся контактным полем. |
-| `0008-payment-order` | принято, требует пересмотра на этапе 25 | Один заказ может иметь несколько платежей; после `C035` checkout должен использовать payment emulator. |
+| `0008-payment-order` | принято, уточнено ADR `0033` | Один заказ может иметь несколько платежей; checkout использует payment emulator и создаёт новую `Payment`-запись с фактическим outcome. |
 | `0009-img-source` | принято, уточнено ADR `0031` | Runtime-источник изображений товара - `ProductImage`; `src/prepare` не используется напрямую. |
 | `0010-button` | принято | Кнопка покупки должна быть связана с реальным cart endpoint и не имитировать несуществующее действие. |
 | `0011-reviews-rating` | принято | Публичный рейтинг считается только по опубликованным отзывам. |
@@ -35,14 +35,14 @@
 | `0023-api-architecture-boundary` | принято, сжато | REST API централизован в `apps/api`, доменная логика переиспользует service layer. |
 | `0024-product-api-contract` | принято, уточняется `C036` | Основной Product API использует slug; этап 27 добавит id compatibility routes. |
 | `0025-api-cart-contract` | принято, уточняется `C036` | API-корзина работает с DB-cart авторизованного JWT-пользователя; этап 27 добавит совместимый `/api/cart/`. |
-| `0026-api-order-create-contract` | принято, требует пересмотра на этапе 25 | API checkout создаёт заказ из текущей корзины; payment outcome должен учитывать emulator. |
+| `0026-api-order-create-contract` | принято, уточнено ADR `0033` | API checkout создаёт заказ из текущей корзины; payment outcome приходит из `apps.payment_emulator`, корзина очищается только при `succeeded`. |
 | `0027-api-registration-jwt` | принято, уточняется `C036` | API-регистрация создаёт пользователя и возвращает JWT pair; этап 27 добавит login alias. |
 | `0028-review-api-contract` | принято, уточняется `C036` | Review API связан с product slug и service layer; id compatibility решается отдельно. |
 | `0029-api-error-permissions-contract` | принято | API ошибки приводятся к единому JSON `{code, detail, fields}`; чужие заказы скрываются через 404. |
 | `0030-seed-data-policy` | принято, уточнено ADR `0036` | Seed идемпотентен, безопасен и не зависит от `src/prepare`; demo-data русифицируется при сохранении ASCII technical keys. |
 | `0031-myshop-brand-and-runtime-assets` | принято | Hop & Barley остаётся reference-концептом; runtime UI, branding и tracked assets принадлежат `MyShop` и не зависят от `src/prepare`. |
 | `0032-admin-ui-and-dashboard` | принято | Улучшаем стандартный Django Admin через branding, шаблоны, стили и staff dashboard без замены базовой admin-механики. |
-| `0033-payment-emulator` | принято | Checkout использует `apps.payment_emulator` с весами `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`; `payments` остаётся владельцем `Payment`. |
+| `0033-payment-emulator` | принято, реализовано на этапе 25 | Checkout использует `apps.payment_emulator` с весами `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`; `payments` остаётся владельцем `Payment`. |
 | `0034-api-compatibility-routes` | принято | Slug routes сохраняются; id/login/cart compatibility routes добавляются поверх существующего API и переиспользуют service/error contracts. |
 | `0035-production-runtime` | принято | Dev stand остаётся на `runserver`, production runtime использует Gunicorn, Nginx, HTTPS, volumes, `collectstatic` и env-based secure settings. |
 | `0036-russian-demo-data` | принято | Пользовательские demo/template данные русифицируются, а `slug`, `SKU`, `username` и provider ids остаются ASCII. |

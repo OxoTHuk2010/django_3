@@ -14,7 +14,7 @@ def test_payment_can_be_created(payment, order):
     assert payment.order == order
     assert payment.amount == Decimal("150000.00")
     assert payment.status == Payment.Status.PENDING
-    assert payment.provider == "mock"
+    assert payment.provider == "payment_emulator"
     assert str(payment) == f"Платёж #{payment.id} по заказу #{order.id}"
 
 

@@ -51,7 +51,7 @@ class CheckoutView(LoginRequiredMixin, FormView):
         """Создать заказ и очистить корзину только после успешной транзакции."""
 
         try:
-            order = create_order_from_cart(
+            checkout_result = create_order_from_cart(
                 user=self.request.user,
                 cart_snapshot=self.cart_snapshot,
                 shipping_data=form.cleaned_data,
@@ -60,9 +60,15 @@ class CheckoutView(LoginRequiredMixin, FormView):
             messages.error(self.request, str(error))
             return redirect("cart:detail")
 
-        clear_cart(self.request)
-        messages.success(self.request, f"Заказ #{order.id} успешно оформлен.")
-        return redirect("users:order_detail", pk=order.pk)
+        if checkout_result.should_clear_cart:
+            clear_cart(self.request)
+            messages.success(self.request, f"Заказ #{checkout_result.order.id} успешно оформлен и оплачен.")
+        else:
+            messages.warning(
+                self.request,
+                "Заказ создан, но оплата не завершена. Корзина сохранена для повторной попытки.",
+            )
+        return redirect("users:order_detail", pk=checkout_result.order.pk)
 
     def get_success_url(self):
         """Формально требуется FormView, фактический redirect выполняется в form_valid."""

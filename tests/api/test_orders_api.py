@@ -5,6 +5,8 @@ from rest_framework.test import APIClient
 
 from apps.cart.models import CartItem
 from apps.orders.models import Order
+from apps.payment_emulator.services import PaymentEmulatorResult
+from apps.payments.models import Payment
 
 pytestmark = pytest.mark.django_db
 
@@ -38,22 +40,47 @@ def test_order_api_requires_jwt():
     assert response.data["code"] == "authentication_required"
 
 
-def test_order_api_creates_order_from_current_cart(user, cart, product):
-    """POST /api/orders/ создаёт заказ из текущей DB-корзины и очищает её."""
+def test_order_api_creates_order_from_current_cart(user, cart, product, monkeypatch):
+    """POST /api/orders/ при успешной оплате создаёт заказ и очищает DB-корзину."""
 
     baker.make("cart.CartItem", cart=cart, product=product, quantity=2)
     initial_stock = product.stock_quantity
+    monkeypatch.setattr(
+        "apps.orders.services.emulate_payment_result",
+        lambda **kwargs: PaymentEmulatorResult(status=Payment.Status.SUCCEEDED),
+    )
 
     response = authenticated_client(user).post(reverse("api:order-list"), checkout_payload(), format="json")
 
     assert response.status_code == 201
     assert response.data["status"] == Order.Status.PAID
     assert response.data["items"][0]["product_name"] == product.name
-    assert response.data["payments"][0]["provider"] == "mock"
+    assert response.data["payments"][0]["provider"] == "payment_emulator"
     assert not CartItem.objects.filter(cart=cart).exists()
 
     product.refresh_from_db()
     assert product.stock_quantity == initial_stock - 2
+
+
+def test_order_api_keeps_cart_when_payment_failed(user, cart, product, monkeypatch):
+    """POST /api/orders/ при неуспешной оплате не очищает DB-корзину."""
+
+    baker.make("cart.CartItem", cart=cart, product=product, quantity=2)
+    initial_stock = product.stock_quantity
+    monkeypatch.setattr(
+        "apps.orders.services.emulate_payment_result",
+        lambda **kwargs: PaymentEmulatorResult(status=Payment.Status.FAILED),
+    )
+
+    response = authenticated_client(user).post(reverse("api:order-list"), checkout_payload(), format="json")
+
+    assert response.status_code == 201
+    assert response.data["status"] == Order.Status.NEW
+    assert response.data["payments"][0]["status"] == Payment.Status.FAILED
+    assert CartItem.objects.filter(cart=cart).exists()
+
+    product.refresh_from_db()
+    assert product.stock_quantity == initial_stock
 
 
 def test_order_api_returns_only_current_user_orders(user, second_user, order):

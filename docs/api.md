@@ -175,4 +175,6 @@ Authorization: Bearer <access-token>
 - API-корзина не поддерживает анонимную session-cart.
 - API-заказ создаётся только из текущей DB-корзины пользователя.
 - SimpleJWT endpoints могут возвращать стандартный формат ошибок библиотеки.
-- Реальная платёжная интеграция не реализована, checkout создаёт mock-платёж.
+- Реальная платёжная интеграция не реализована, checkout использует `apps.payment_emulator`.
+- `POST /api/orders/` может создать заказ с payment outcome `succeeded`, `failed`, `cancelled` или `pending`.
+- API-корзина очищается только при `succeeded`; при `failed`, `cancelled` и `pending` корзина сохраняется для повторной попытки или дальнейшего решения оплаты.

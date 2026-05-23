@@ -15,6 +15,7 @@ MyShop — монолитный Django-проект интернет-магаз�
 - `orders` — checkout, сервис создания заказа, заказы и позиции заказов.
 - `reviews` — отзывы на товары, проверка права оставить отзыв и web-сценарий создания отзыва.
 - `payments` — платежи и статусы оплаты.
+- `payment_emulator` — симуляция результата платёжного провайдера без владения моделью `Payment`.
 - `api` — централизованный REST API-слой: serializers, views/viewsets, permissions, filters, pagination, schema и маршруты.
 
 ## Слои приложения
@@ -58,7 +59,7 @@ MyShop — монолитный Django-проект интернет-магаз�
 - `/reviews/products/<slug>/add/` — POST-создание отзыва на товар, реализуется в приложении `reviews`.
 - Web-представления каталога собирают queryset и передают данные в шаблоны.
 - Web-представления корзины остаются тонким HTTP-слоем: они читают форму, вызывают `apps/cart/services.py`, ставят messages и выполняют redirect.
-- Web-представление checkout остаётся тонким HTTP-слоем: валидирует форму, получает snapshot корзины, вызывает `apps/orders/services.py`, очищает корзину после успешного заказа и выполняет redirect.
+- Web-представление checkout остаётся тонким HTTP-слоем: валидирует форму, получает snapshot корзины, вызывает `apps/orders/services.py`, очищает корзину только после успешной оплаты и выполняет redirect.
 - Представления личного кабинета фильтруют заказы по `request.user`, поэтому чужой заказ по id возвращает 404.
 - Детальная страница товара содержит POST-форму добавления в корзину, если товар есть в наличии.
 - На этапе отзывов детальная страница товара может показывать форму отзыва, но создание `Review` должно проходить через `reviews.views` и `reviews.services`.
@@ -102,7 +103,9 @@ Checkout реализован как связка `cart.services` и `orders.ser
 - `orders.services.create_order_from_cart()` отвечает за атомарное создание заказа.
 - `create_order_from_cart()` принимает `CartSnapshot`, но внутри транзакции повторно блокирует и перечитывает товары через `select_for_update()`.
 - Заказ создаётся по правилу all-or-nothing.
-- Для MVP создаётся успешный mock-платёж, после чего заказ получает статус `paid`.
+- Результат оплаты приходит из `apps.payment_emulator`.
+- При `succeeded` заказ получает статус `paid`, платёж получает статус `succeeded`, остатки уменьшаются, корзина очищается.
+- При `failed`, `cancelled` или `pending` заказ остаётся в статусе `new`, платёж фиксирует соответствующий статус, остатки не уменьшаются, корзина сохраняется.
 
 ## Настройки
 
@@ -158,5 +161,12 @@ ADR находятся в `docs/decisions/`.
 - `0028-review-api-contract.md` — использовать `slug` товара и review service-layer в Review API.
 - `0029-api-error-permissions-contract.md` — использовать единый формат ошибок и permissions в REST API.
 - `0030-seed-data-policy.md` — сделать seed-команду идемпотентной и не зависящей от `src/prepare/` в runtime.
+- `0031-myshop-brand-and-runtime-assets.md` — оставить публичный runtime-бренд `MyShop` и не зависеть от `src/prepare`.
+- `0032-admin-ui-and-dashboard.md` — улучшать стандартный Django Admin без замены admin-механики.
+- `0033-payment-emulator.md` — использовать отдельный weighted payment emulator для исходов оплаты.
+- `0034-api-compatibility-routes.md` — добавить compatibility routes без удаления текущего API.
+- `0035-production-runtime.md` — разделить dev runtime и production runtime.
+- `0036-russian-demo-data.md` — держать пользовательские demo-data на русском языке.
+- `0037-analytics-service-layer.md` — считать аналитику через общий read/service слой.
 
 Журнал конфликтов и статусы закрытия решений см. в `docs/conflicts.md`.
