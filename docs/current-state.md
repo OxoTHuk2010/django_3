@@ -1,6 +1,6 @@
 # Текущее состояние проекта
 
-Дата оценки: 2026-05-20.
+Дата оценки: 2026-05-24.
 
 Документ фиксирует фактический baseline перед следующими этапами. Ручные проверки текущего web-состояния уже выполнены отдельно; ниже зафиксированы инженерная оценка, автоматические проверки и ближайшие реализуемые направления.
 
@@ -16,17 +16,18 @@
 - REST API вынесен в `apps/api`, использует JWT, единый слой serializers/views и покрывает продукты, корзину, заказы, регистрацию и отзывы;
 - Swagger/OpenAPI подключён через drf-spectacular;
 - demo-data создаётся management command `seed_demo_data`, команда идемпотентна и защищает destructive reset;
+- современная админка реализована как кастомизация стандартного Django Admin: branding, staff dashboard, отдельная admin-статика, верхняя навигация, бейджи статусов товаров и быстрые ссылки в `ProductAdmin`;
 - UI-шаблоны и runtime-статика перенесены в `src/templates` и `src/static/shop`, при этом `src/prepare` остаётся reference/source, а не runtime-зависимостью;
 - reference UI перенесён в рабочие Django-шаблоны с русской локализацией и текущим брендом `MyShop`: header/footer, hero/banner, sidebar filters, product grid, карточки, auth forms, корзина и checkout;
 - runtime JS подключён из `src/static/shop/js/main.js` как progressive enhancement для аккордеонов, фильтров и quantity controls; симуляция login/cart из reference-прототипа не переносилась, потому что проект использует реальные Django-сессии и POST-формы;
 - reference product images перенесены в `src/static/shop/img/products`, а `seed_demo_data` создаёт штатные `ProductImage` через копирование в `MEDIA_ROOT/demo/products`;
-- этапы 20, 21 и 22 закрыты: baseline зафиксирован, бренд runtime UI — `MyShop`, пользовательские UI-тексты и demo-data русскоязычные, CSS/JS/images находятся в tracked static.
+- этапы 20, 21, 22 и 23 закрыты: baseline зафиксирован, бренд runtime UI — `MyShop`, пользовательские UI-тексты и demo-data русскоязычные, CSS/JS/images находятся в tracked static, админка улучшена без замены стандартного Django Admin.
 
-Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator, не завершены современная админка и будущая аналитика.
+Проект ещё не является production-ready поставкой: нет полноценного production runtime с Gunicorn/Nginx/HTTPS, нет CI, нет отдельного payment emulator, не завершена будущая админская аналитика.
 
 ## Проверенный baseline
 
-Автоматические проверки на 2026-05-20:
+Автоматические проверки на 2026-05-24:
 
 ```powershell
 .\.venv\Scripts\python.exe manage.py check
@@ -40,9 +41,9 @@
 
 - `manage.py check` проходит без замечаний;
 - `makemigrations --check --dry-run` сообщает `No changes detected`;
-- `collectstatic --dry-run --noinput --clear` видит `src/static/shop/css/main.css`, `src/static/shop/js/main.js` и перенесённые изображения, проходит;
+- `collectstatic --dry-run --noinput --clear` видит `src/static/shop/css/main.css`, `src/static/shop/js/main.js`, `src/static/admin_shop/css/admin.css` и перенесённые изображения, проходит;
 - `ruff check` проходит;
-- `pytest` проходит: `159 passed`, coverage `90%`;
+- `pytest` проходит: `162 passed`, coverage `90%`;
 - единственное предупреждение тестового прогона: `InsecureKeyLengthWarning` из SimpleJWT из-за короткого dev `SECRET_KEY`; это не блокирует локальную разработку, но production secret должен быть длинным и внешним.
 
 Ручные проверки предыдущего UI были выполнены до переноса reference-дизайна. После текущих изменений выполнена автоматическая и HTTP smoke-проверка; отдельный визуальный ручной цикл по браузеру нужен перед фиксацией финального UI baseline.
@@ -64,7 +65,6 @@
 
 Следующие направления затрагивают архитектурные решения и должны начинаться с компактного ADR или обновления существующего решения:
 
-- современная админка и отдельная admin-статика;
 - админская аналитика и будущие агрегаты;
 - отдельный payment emulator вместо текущего mock-success checkout;
 - email-уведомления;
@@ -86,5 +86,5 @@
 ## Рекомендуемый порядок ближайших работ
 
 1. Повторить полный ручной и автоматический baseline после UI/demo-data переноса.
-2. Закрыть этап 23: современная админка.
-3. После этого выбрать один крупный архитектурный трек: admin analytics, payment emulator, CI или production runtime.
+2. Закрыть этап 24: админская аналитика.
+3. После этого выбрать один крупный архитектурный трек: payment emulator, CI или production runtime.

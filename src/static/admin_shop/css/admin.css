@@ -1,0 +1,207 @@
+:root {
+    --admin-shop-bg: #f6f1e8;
+    --admin-shop-panel: #fffaf2;
+    --admin-shop-ink: #2d2418;
+    --admin-shop-muted: #7d6f5f;
+    --admin-shop-accent: #6f8f2f;
+    --admin-shop-accent-strong: #456119;
+    --admin-shop-border: #e3d7c5;
+    --admin-shop-danger: #a33d2f;
+    --admin-shop-warning: #9a6a17;
+}
+
+#header {
+    background: linear-gradient(135deg, #2f3d18, #6f8f2f);
+    color: #fffaf2;
+}
+
+.admin-shop-brand__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fffaf2;
+    text-decoration: none;
+}
+
+.admin-shop-brand__mark {
+    display: inline-grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border: 1px solid rgba(255, 250, 242, 0.35);
+    border-radius: 999px;
+    background: rgba(255, 250, 242, 0.12);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.admin-shop-brand strong,
+.admin-shop-brand small {
+    display: block;
+    line-height: 1.1;
+}
+
+.admin-shop-brand small {
+    color: rgba(255, 250, 242, 0.78);
+    font-size: 0.72rem;
+    margin-top: 0.18rem;
+}
+
+.admin-shop-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.8rem 0;
+}
+
+.admin-shop-nav a {
+    border: 1px solid rgba(255, 250, 242, 0.25);
+    border-radius: 999px;
+    color: #fffaf2;
+    padding: 0.35rem 0.75rem;
+    text-decoration: none;
+}
+
+.admin-shop-nav a:hover,
+.admin-shop-nav a:focus {
+    background: rgba(255, 250, 242, 0.16);
+}
+
+.admin-shop-dashboard {
+    display: grid;
+    gap: 1.4rem;
+}
+
+.admin-shop-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--admin-shop-border);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(circle at top right, rgba(111, 143, 47, 0.18), transparent 35%),
+        var(--admin-shop-panel);
+    color: var(--admin-shop-ink);
+}
+
+.admin-shop-hero h1 {
+    margin: 0.15rem 0 0.4rem;
+    color: var(--admin-shop-ink);
+    font-size: clamp(1.6rem, 3vw, 2.35rem);
+}
+
+.admin-shop-hero p {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--admin-shop-muted);
+}
+
+.admin-shop-eyebrow {
+    color: var(--admin-shop-accent-strong);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.admin-shop-button,
+.admin-shop-link {
+    color: var(--admin-shop-accent-strong);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-shop-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--admin-shop-accent);
+    color: #fffaf2;
+    padding: 0.7rem 1rem;
+    white-space: nowrap;
+}
+
+.admin-shop-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+}
+
+.admin-shop-card {
+    display: grid;
+    gap: 0.35rem;
+    min-height: 8rem;
+    padding: 1.1rem;
+    border: 1px solid var(--admin-shop-border);
+    border-radius: 1.1rem;
+    background: #fff;
+    color: var(--admin-shop-ink);
+    text-decoration: none;
+}
+
+.admin-shop-card:hover,
+.admin-shop-card:focus {
+    border-color: var(--admin-shop-accent);
+    box-shadow: 0 1rem 2rem rgba(45, 36, 24, 0.08);
+    transform: translateY(-1px);
+}
+
+.admin-shop-card__label {
+    color: var(--admin-shop-accent-strong);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-shop-card strong {
+    font-size: 1.2rem;
+}
+
+.admin-shop-card small {
+    color: var(--admin-shop-muted);
+}
+
+.admin-shop-standard-apps h2 {
+    margin-top: 0.5rem;
+}
+
+.admin-shop-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.22rem 0.58rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.admin-shop-badge--success {
+    background: #e5f3d2;
+    color: #385610;
+}
+
+.admin-shop-badge--warning {
+    background: #fff0c4;
+    color: var(--admin-shop-warning);
+}
+
+.admin-shop-badge--danger {
+    background: #fde0dc;
+    color: var(--admin-shop-danger);
+}
+
+.admin-shop-badge--muted {
+    background: #ece4d8;
+    color: #65594b;
+}
+
+@media (max-width: 760px) {
+    .admin-shop-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

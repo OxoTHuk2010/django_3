@@ -1,6 +1,6 @@
 # Тестирование
 
-Актуальный результат проверок на 2026-05-20: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит перенесённые CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `159 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
+Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `162 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
 
 Документ фиксирует текущую стратегию тестирования и фактическое покрытие. Проверки должны подтверждать не только наличие кода, но и выполнение бизнес-правил проекта.
 
@@ -27,22 +27,23 @@ docker compose exec -T web python manage.py showmigrations
 
 ## Последний локальный результат
 
-Дата проверки: 2026-05-18.
+Дата проверки: 2026-05-24.
 
 - `manage.py check` — проходит.
 - `ruff check .` — проходит.
 - `makemigrations --check --dry-run` — `No changes detected`.
-- `pytest` — `159 passed`.
+- `pytest` — `162 passed`.
 - Coverage — `90%`.
 
 ## Последний Docker-результат
 
-Дата проверки: 2026-05-17.
+Дата проверки: 2026-05-24.
 
 - `docker compose up -d --build` — проходит, `web` запущен.
 - `docker compose ps` — `db` healthy, `web` up.
 - `docker compose exec -T web python manage.py check` — проходит.
 - `docker compose exec -T web python manage.py makemigrations --check --dry-run` — `No changes detected`.
+- `docker compose exec -T web python manage.py collectstatic --dry-run --noinput --clear` — проходит, admin/static storefront файлы видны.
 - `/cart/` — HTTP 200.
 - `/products/` — HTTP 200.
 - `/products/<slug>/` — покрыт локальными view-тестами.
@@ -85,6 +86,10 @@ docker compose exec -T web python manage.py showmigrations
 - action подтверждения оплаты;
 - action отмены оплаты;
 - корректное изменение статусов и служебных полей после выполнения actions.
+- staff dashboard `/admin/`;
+- branding `MyShop Admin`;
+- бейджи наличия и видимости товара в `ProductAdmin`;
+- быстрые ссылки `ProductAdmin` на редактирование и публичную карточку товара.
 
 ### Публичный каталог
 

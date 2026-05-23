@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 
 from apps.catalog.models import Category, Product, ProductImage
 
@@ -127,8 +129,9 @@ class ProductAdmin(admin.ModelAdmin):
         "price",
         "old_price",
         "stock_quantity",
-        "is_active",
-        "is_deleted",
+        "availability_badge",
+        "visibility_badge",
+        "admin_quick_links",
         "created_at",
     )
     list_filter = (
@@ -193,6 +196,56 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.display(description="Наличие", ordering="stock_quantity")
+    def availability_badge(self, obj: Product) -> str:
+        """Показать визуальное состояние остатка товара в списке админки."""
+
+        if obj.stock_quantity == 0:
+            return format_html(
+                '<span class="admin-shop-badge admin-shop-badge--danger">{}</span>',
+                "Нет в наличии",
+            )
+        if obj.stock_quantity <= 5:
+            return format_html(
+                '<span class="admin-shop-badge admin-shop-badge--warning">Мало: {}</span>',
+                obj.stock_quantity,
+            )
+        return format_html(
+            '<span class="admin-shop-badge admin-shop-badge--success">В наличии: {}</span>',
+            obj.stock_quantity,
+        )
+
+    @admin.display(description="Видимость")
+    def visibility_badge(self, obj: Product) -> str:
+        """Показать статус активности и soft delete товара."""
+
+        if obj.is_deleted:
+            return format_html(
+                '<span class="admin-shop-badge admin-shop-badge--muted">{}</span>',
+                "Soft-deleted",
+            )
+        if not obj.is_active:
+            return format_html(
+                '<span class="admin-shop-badge admin-shop-badge--warning">{}</span>',
+                "Скрыт",
+            )
+        return format_html(
+            '<span class="admin-shop-badge admin-shop-badge--success">{}</span>',
+            "Активен",
+        )
+
+    @admin.display(description="Быстрые действия")
+    def admin_quick_links(self, obj: Product) -> str:
+        """Добавить быстрые переходы к редактированию и публичной карточке товара."""
+
+        change_url = reverse("admin:catalog_product_change", args=[obj.pk])
+        public_url = reverse("catalog:product_detail", kwargs={"slug": obj.slug})
+        return format_html(
+            '<a class="admin-shop-link" href="{}">Редактировать</a> <a class="admin-shop-link" href="{}" target="_blank" rel="noopener">Открыть</a>',
+            change_url,
+            public_url,
+        )
 
 
 @admin.register(ProductImage)

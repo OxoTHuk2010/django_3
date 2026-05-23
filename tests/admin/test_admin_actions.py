@@ -82,6 +82,46 @@ def test_product_admin_can_deactivate_products(product):
     model_admin.message_user.assert_called_once()
 
 
+def test_product_admin_uses_status_badges_and_quick_links(product):
+    """ProductAdmin показывает бейджи наличия, видимости и быстрые переходы."""
+
+    model_admin = build_model_admin(ProductAdmin, Product)
+
+    availability_html = model_admin.availability_badge(product)
+    visibility_html = model_admin.visibility_badge(product)
+    quick_links_html = model_admin.admin_quick_links(product)
+
+    assert "admin-shop-badge--success" in availability_html
+    assert "admin-shop-badge--success" in visibility_html
+    assert "Редактировать" in quick_links_html
+    assert "Открыть" in quick_links_html
+
+
+def test_product_admin_marks_hidden_and_out_of_stock_products(product):
+    """ProductAdmin визуально различает скрытые товары и товары без остатка."""
+
+    product.stock_quantity = 0
+    product.is_active = False
+    product.save(update_fields=["stock_quantity", "is_active"])
+    model_admin = build_model_admin(ProductAdmin, Product)
+
+    assert "admin-shop-badge--danger" in model_admin.availability_badge(product)
+    assert "Скрыт" in model_admin.visibility_badge(product)
+
+
+def test_admin_index_uses_myshop_dashboard(admin_client):
+    """Главная страница Django Admin показывает кастомный staff dashboard MyShop."""
+
+    response = admin_client.get("/admin/")
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "MyShop Admin" in content
+    assert "Панель управления MyShop" in content
+    assert "Товары" in content
+    assert "Заказы" in content
+
+
 def test_order_admin_can_cancel_orders(order):
     """Action `cancel_orders` переводит выбранные заказы в статус отмены."""
     order.status = Order.Status.PROCESSING

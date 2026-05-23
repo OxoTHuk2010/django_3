@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | MyShop Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin_shop/css/admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div class="admin-shop-brand">
+    <a class="admin-shop-brand__link" href="{% url 'admin:index' %}">
+        <span class="admin-shop-brand__mark">MS</span>
+        <span>
+            <strong>MyShop Admin</strong>
+            <small>Управление магазином</small>
+        </span>
+    </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}
+<nav class="admin-shop-nav" aria-label="Основная навигация админки">
+    <a href="{% url 'admin:index' %}">Dashboard</a>
+    <a href="{% url 'admin:catalog_product_changelist' %}">Товары</a>
+    <a href="{% url 'admin:orders_order_changelist' %}">Заказы</a>
+    <a href="{% url 'admin:payments_payment_changelist' %}">Платежи</a>
+    <a href="{% url 'admin:reviews_review_changelist' %}">Отзывы</a>
+    <a href="{% url 'admin:users_user_changelist' %}">Пользователи</a>
+</nav>
+{% endblock %}

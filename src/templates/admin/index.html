@@ -1,0 +1,87 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<section class="admin-shop-dashboard">
+    <div class="admin-shop-hero">
+        <div>
+            <p class="admin-shop-eyebrow">Staff dashboard</p>
+            <h1>Панель управления MyShop</h1>
+            <p>Быстрый доступ к ключевым разделам магазина без замены стандартного Django Admin.</p>
+        </div>
+        <a class="admin-shop-button" href="{% url 'admin:catalog_product_add' %}">Добавить товар</a>
+    </div>
+
+    <div class="admin-shop-card-grid" aria-label="Быстрая навигация">
+        <a class="admin-shop-card" href="{% url 'admin:catalog_product_changelist' %}">
+            <span class="admin-shop-card__label">Каталог</span>
+            <strong>Товары</strong>
+            <small>Поиск, фильтры, статусы и быстрые действия</small>
+        </a>
+        <a class="admin-shop-card" href="{% url 'admin:orders_order_changelist' %}">
+            <span class="admin-shop-card__label">Продажи</span>
+            <strong>Заказы</strong>
+            <small>Контроль статусов, состава заказа и суммы</small>
+        </a>
+        <a class="admin-shop-card" href="{% url 'admin:payments_payment_changelist' %}">
+            <span class="admin-shop-card__label">Финансы</span>
+            <strong>Платежи</strong>
+            <small>Mock-платежи, подтверждение и отмена</small>
+        </a>
+        <a class="admin-shop-card" href="{% url 'admin:reviews_review_changelist' %}">
+            <span class="admin-shop-card__label">Контент</span>
+            <strong>Отзывы</strong>
+            <small>Модерация, публикация и скрытие отзывов</small>
+        </a>
+        <a class="admin-shop-card" href="{% url 'admin:users_user_changelist' %}">
+            <span class="admin-shop-card__label">Доступ</span>
+            <strong>Пользователи</strong>
+            <small>Staff, активность и профильные данные</small>
+        </a>
+    </div>
+
+    {% if app_list %}
+        <div class="admin-shop-standard-apps">
+            <h2>Стандартные разделы Django Admin</h2>
+            {% for app in app_list %}
+                <section class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+                    <table>
+                        <caption>
+                            <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
+                                {{ app.name }}
+                            </a>
+                        </caption>
+                        {% for model in app.models %}
+                            <tr class="model-{{ model.object_name|lower }}">
+                                <th scope="row" id="{{ app.app_label }}-{{ model.object_name|lower }}">
+                                    {% if model.admin_url %}
+                                        <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>{{ model.name }}</a>
+                                    {% else %}
+                                        {{ model.name }}
+                                    {% endif %}
+                                </th>
+                                <td>
+                                    {% if model.add_url %}
+                                        <a href="{{ model.add_url }}" class="addlink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% translate "Add" %}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if model.admin_url and model.view_only %}
+                                        <a href="{{ model.admin_url }}" class="viewlink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% translate "View" %}</a>
+                                    {% elif model.admin_url %}
+                                        <a href="{{ model.admin_url }}" class="changelink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% translate "Change" %}</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </section>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>{% translate "You don't have permission to view or edit anything." %}</p>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
