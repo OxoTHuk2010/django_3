@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
 from model_bakery import baker
 
 from apps.orders.models import Order
@@ -10,24 +11,31 @@ from apps.reviews.models import Review
 
 
 @pytest.fixture
-def user(db):
+def user_password() -> str:
+    """Сгенерировать пароль только на время тестового запуска."""
+
+    return f"test-{get_random_string(24)}A1!"
+
+
+@pytest.fixture
+def user(db, user_password):
     """Основной пользователь для проверки связей с доменными моделями."""
     User = get_user_model()
     return User.objects.create_user(
         username="testuser",
         email="testuser@example.com",
-        password="strong-test-password",
+        password=user_password,
     )
 
 
 @pytest.fixture
-def second_user(db):
+def second_user(db, user_password):
     """Дополнительный пользователь для проверки уникальности и прав владения."""
     User = get_user_model()
     return User.objects.create_user(
         username="seconduser",
         email="seconduser@example.com",
-        password="strong-test-password",
+        password=user_password,
     )
 
 

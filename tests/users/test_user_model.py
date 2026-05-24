@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
+from django.utils.crypto import get_random_string
 
 pytestmark = pytest.mark.django_db
 
@@ -8,17 +9,18 @@ pytestmark = pytest.mark.django_db
 def test_user_can_be_created_with_username_and_email():
     """Пользователь создаётся со стандартным username-логином и контактным email."""
     User = get_user_model()
+    password = f"test-user-{get_random_string(24)}A1!"
 
     user = User.objects.create_user(
         username="john",
         email="john@example.com",
-        password="secure-password",
+        password=password,
     )
 
     assert user.id is not None
     assert user.username == "john"
     assert user.email == "john@example.com"
-    assert user.check_password("secure-password")
+    assert user.check_password(password)
 
 
 def test_user_uses_username_as_login_field():
@@ -33,7 +35,7 @@ def test_user_email_is_optional():
     """Email является вспомогательным контактным полем и может быть пустым."""
     User = get_user_model()
 
-    user = User.objects.create_user(username="without-email", password="secure-password")
+    user = User.objects.create_user(username="without-email", password=f"test-user-{get_random_string(24)}A1!")
 
     # Django может сохранить пустой email как NULL или пустую строку в зависимости от пути создания.
     assert user.email in (None, "")
@@ -49,7 +51,7 @@ def test_user_email_is_unique_when_provided(user):
             User.objects.create_user(
                 username="duplicate-email",
                 email=user.email,
-                password="secure-password",
+                password=f"test-user-{get_random_string(24)}A1!",
             )
 
 

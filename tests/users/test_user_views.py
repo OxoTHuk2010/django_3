@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 
 from apps.cart.models import CartItem
 
@@ -26,7 +27,7 @@ def test_profile_opens_for_authenticated_user(client, user):
     assert user.username in response.content.decode()
 
 
-def test_login_merges_guest_cart_to_user_db_cart(client, user, product):
+def test_login_merges_guest_cart_to_user_db_cart(client, user, user_password, product):
     """После входа гостевая корзина объединяется с DB-корзиной пользователя."""
 
     session = client.session
@@ -37,7 +38,7 @@ def test_login_merges_guest_cart_to_user_db_cart(client, user, product):
         reverse("users:login"),
         {
             "username": user.username,
-            "password": "strong-test-password",
+            "password": user_password,
         },
     )
 
@@ -49,13 +50,14 @@ def test_login_merges_guest_cart_to_user_db_cart(client, user, product):
 def test_registration_creates_user_and_logs_in(client):
     """Регистрация создаёт пользователя и сразу открывает личный кабинет."""
 
+    password = f"test-registration-{get_random_string(24)}A1!"
     response = client.post(
         reverse("users:register"),
         {
             "username": "newuser",
             "email": "newuser@example.com",
-            "password1": "strong-test-password-123",
-            "password2": "strong-test-password-123",
+            "password1": password,
+            "password2": password,
         },
     )
 

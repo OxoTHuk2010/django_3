@@ -14,17 +14,51 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+PROJECT_ROOT = BASE_DIR.parent
+
+
+def _load_local_dotenv() -> None:
+    """Загрузить локальный `.env`, не перезаписывая уже заданные переменные окружения."""
+
+    dotenv_path = PROJECT_ROOT / ".env"
+    if not dotenv_path.exists():
+        return
+
+    for raw_line in dotenv_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip("'\"")
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_local_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "0") == "1"
+SETTINGS_MODULE = os.getenv("DJANGO_SETTINGS_MODULE", "")
+IS_LOCAL_SETTINGS = SETTINGS_MODULE.endswith(".local") or SETTINGS_MODULE == "config.settings.local"
+
+# В local/test без SECRET_KEY используется одноразовый ключ процесса.
+# Production settings дополнительно запрещает запуск без внешнего SECRET_KEY.
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if IS_LOCAL_SETTINGS or DEBUG:
+        SECRET_KEY = get_random_secret_key()
+    else:
+        raise ImproperlyConfigured("SECRET_KEY must be set via environment variable.")
 
 SECURE_COOKIES = os.getenv("SECURE_COOKIES", "0") == "1"
 if not DEBUG:
@@ -129,7 +163,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME", "myshop"),
         "USER": os.getenv("DB_USER", "myshop"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "myshop"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
         "HOST": os.getenv("DB_HOST", "localhost"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }

@@ -2,6 +2,7 @@ from decimal import Decimal
 from os import getenv
 from pathlib import Path
 from shutil import copy2
+from typing import cast
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -14,8 +15,9 @@ from apps.catalog.models import Category, Product, ProductImage
 from apps.orders.models import Order, OrderItem
 from apps.payments.models import Payment
 from apps.reviews.models import Review
+from apps.users.models import User
 
-DEMO_PASSWORD = "demo-password-123"
+DEMO_PASSWORD_ENV = "MYSHOP_DEMO_PASSWORD"
 
 DEMO_CATEGORIES = (
     {
@@ -231,19 +233,33 @@ class Command(BaseCommand):
 
         reset = options["reset"]
         yes = options["yes"]
+        demo_password = getenv(DEMO_PASSWORD_ENV, "")
 
+        self._validate_seed_allowed()
         if reset:
             self._validate_reset_allowed(yes=yes)
             self._delete_demo_data()
 
         categories = self._seed_categories()
         products = self._seed_products(categories)
-        users = self._seed_users()
+        users = self._seed_users(demo_password=demo_password or None)
         self._seed_orders(users, products)
         self._seed_reviews(users, products)
 
         self.stdout.write(self.style.SUCCESS("Demo data seeded successfully."))
-        self.stdout.write(f"Demo password: {DEMO_PASSWORD}")
+        if demo_password:
+            self.stdout.write(self.style.WARNING(f"Demo users password was loaded from {DEMO_PASSWORD_ENV}."))
+        else:
+            self.stdout.write(self.style.WARNING(f"{DEMO_PASSWORD_ENV} is not set; demo users were created with unusable passwords."))
+
+    def _validate_seed_allowed(self) -> None:
+        """Не создавать demo-аккаунты в production-like окружении."""
+
+        environment = getenv("ENVIRONMENT", "").lower()
+        settings_module = getenv("DJANGO_SETTINGS_MODULE", "").lower()
+
+        if not settings.DEBUG or environment == "production" or "production" in settings_module:
+            raise CommandError("Refusing to seed demo data outside local/demo environment.")
 
     def _validate_reset_allowed(self, *, yes: bool) -> None:
         """Остановить destructive reset вне локального/demo окружения."""
@@ -297,10 +313,12 @@ class Command(BaseCommand):
 
         products: dict[str, Product] = {}
         for payload in DEMO_PRODUCTS:
+            category_slug = str(payload["category_slug"])
+            image_filename = str(payload["image"])
             product, _created = Product.objects.update_or_create(
                 slug=payload["slug"],
                 defaults={
-                    "category": categories[payload["category_slug"]],
+                    "category": categories[category_slug],
                     "name": payload["name"],
                     "sku": payload["sku"],
                     "description": payload["description"],
@@ -312,7 +330,7 @@ class Command(BaseCommand):
                     "deleted_at": None,
                 },
             )
-            self._seed_product_image(product, source_filename=payload["image"])
+            self._seed_product_image(product, source_filename=image_filename)
             products[product.slug] = product
         return products
 
@@ -342,27 +360,33 @@ class Command(BaseCommand):
         product.images.filter(image__startswith="demo/products/").exclude(pk=image.pk).delete()
         product.images.exclude(pk=image.pk).update(is_main=False)
 
-    def _seed_users(self) -> dict[str, object]:
+    def _seed_users(self, *, demo_password: str | None) -> dict[str, User]:
         """Создать или обновить demo-пользователей по username."""
 
-        User = get_user_model()
-        users = {}
+        user_model = get_user_model()
+        users: dict[str, User] = {}
         for payload in DEMO_USERS:
-            user, _created = User.objects.update_or_create(
-                username=payload["username"],
-                defaults={
-                    "email": payload["email"],
-                    "first_name": payload["first_name"],
-                    "last_name": payload["last_name"],
-                    "phone": payload["phone"],
-                },
+            user = cast(
+                User,
+                user_model.objects.update_or_create(
+                    username=payload["username"],
+                    defaults={
+                        "email": payload["email"],
+                        "first_name": payload["first_name"],
+                        "last_name": payload["last_name"],
+                        "phone": payload["phone"],
+                    },
+                )[0],
             )
-            user.set_password(DEMO_PASSWORD)
+            if demo_password:
+                user.set_password(demo_password)
+            else:
+                user.set_unusable_password()
             user.save(update_fields=["password"])
             users[user.username] = user
         return users
 
-    def _seed_orders(self, users: dict[str, object], products: dict[str, Product]) -> None:
+    def _seed_orders(self, users: dict[str, User], products: dict[str, Product]) -> None:
         """Пересоздать demo-заказы известных пользователей без дублей."""
 
         demo_users = list(users.values())
@@ -376,7 +400,7 @@ class Command(BaseCommand):
                 user=user,
                 status=Order.Status.COMPLETED if user.username in REVIEWERS else Order.Status.PAID,
                 customer_name=user.get_full_name() or user.username,
-                customer_email=user.email,
+                customer_email=user.email or "",
                 customer_phone=user.phone,
                 delivery_address=f"Демо-город, улица Пивоваров, {user_index}",
                 comment="Демонстрационный заказ для локальной витрины.",
@@ -403,7 +427,7 @@ class Command(BaseCommand):
                 paid_at=timezone.now(),
             )
 
-    def _seed_reviews(self, users: dict[str, object], products: dict[str, Product]) -> None:
+    def _seed_reviews(self, users: dict[str, User], products: dict[str, Product]) -> None:
         """Создать или обновить demo-отзывы по паре user + product."""
 
         for product_index, product in enumerate(products.values(), start=1):

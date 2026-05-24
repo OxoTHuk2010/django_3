@@ -6,4 +6,6 @@
 __pycache__/
 *.py[cod]
 *.log
+.env
+.envrc
 .env.example
