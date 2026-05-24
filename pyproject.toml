@@ -14,7 +14,8 @@ dependencies = [
     "pillow (>=12.2.0,<13.0.0)",
     "django-filter (>=25.2,<26.0)",
     "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
-    "drf-spectacular (>=0.29.0,<0.30.0)"
+    "drf-spectacular (>=0.29.0,<0.30.0)",
+    "gunicorn (>=26.0.0,<27.0.0)"
 ]
 
 
@@ -93,3 +94,22 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
 ]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+explicit_package_bases = true
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+disable_error_code = [
+    "arg-type",
+    "assignment",
+    "attr-defined",
+    "method-assign",
+    "operator",
+    "return-value",
+    "var-annotated",
+]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.local"
