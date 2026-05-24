@@ -41,3 +41,9 @@ class ProductDetailAPIView(RetrieveAPIView):
         """Вернуть только публично доступные товары."""
 
         return with_review_stats(get_product_detail_queryset())
+
+
+class ProductDetailByIdAPIView(ProductDetailAPIView):
+    """Compatibility-карточка товара по внутреннему id."""
+
+    lookup_field = "pk"

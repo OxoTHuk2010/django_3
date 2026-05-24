@@ -1,6 +1,6 @@
 # Тестирование
 
-Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `179 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
+Актуальный результат проверок на 2026-05-24: `manage.py check` проходит, `makemigrations --check --dry-run` сообщает `No changes detected`, `collectstatic --dry-run --noinput --clear` видит storefront/admin CSS/JS/images, `ruff check . --no-cache` проходит, `pytest -q -p no:cacheprovider` проходит с результатом `187 passed`, coverage `90%`. После переноса reference UI выполнена HTTP smoke-проверка; финальный визуальный ручной цикл нужно провести отдельно.
 
 Документ фиксирует текущую стратегию тестирования и фактическое покрытие. Проверки должны подтверждать не только наличие кода, но и выполнение бизнес-правил проекта.
 
@@ -32,7 +32,7 @@ docker compose exec -T web python manage.py showmigrations
 - `manage.py check` — проходит.
 - `ruff check .` — проходит.
 - `makemigrations --check --dry-run` — `No changes detected`.
-- `pytest` — `179 passed`.
+- `pytest` — `187 passed`.
 - Coverage — `90%`.
 
 ## Последний Docker-результат
@@ -183,6 +183,8 @@ docker compose exec -T web python manage.py showmigrations
 - создание `OrderItem` со snapshot цены и названия товара;
 - уменьшение остатков после успешного заказа;
 - создание успешного платежа через payment emulator;
+- отправка email покупателю и администратору после checkout;
+- сохранение созданного заказа при ошибке email backend;
 - очистка DB-корзины после успешного web-checkout;
 - сохранение корзины при неуспешной оплате;
 - отсутствие списания остатков при `failed`, `cancelled` и `pending`;
@@ -222,9 +224,11 @@ docker compose exec -T web python manage.py showmigrations
 
 - публичный список товаров `/api/products/`;
 - детальная карточка товара `/api/products/<slug>/`;
+- compatibility-карточка товара `/api/products/<id>/`;
 - фильтры Product API;
 - JWT-защита API-корзины;
 - добавление, изменение, удаление и очистка API-корзины;
+- compatibility `GET/POST/PATCH/DELETE /api/cart/`;
 - запрет количества больше остатка;
 - JWT-защита API-заказов;
 - создание заказа из текущей API-корзины;
@@ -232,6 +236,7 @@ docker compose exec -T web python manage.py showmigrations
 - сохранение API-корзины после неуспешного payment outcome;
 - доступ только к своим заказам;
 - API-регистрация с выдачей JWT pair;
+- compatibility login alias `/api/users/login/`;
 - валидация уникальности email при API-регистрации;
 - публичный список опубликованных отзывов товара;
 - JWT-защита создания отзыва;
@@ -256,8 +261,6 @@ docker compose exec -T web python manage.py showmigrations
 
 Эти проверки появятся после реализации соответствующих этапов:
 
-- email-уведомления после checkout;
-- compatibility routes REST API;
 - GraphQL analytics;
 - CI pipeline;
 - production runtime.

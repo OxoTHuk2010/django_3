@@ -1358,7 +1358,7 @@ Checkout переведён с always-success mock на `apps.payment_emulator`.
 
 ### Факт по текущему проекту
 
-Текущий product API использует slug routes, например `GET /api/products/<slug>/` и `GET/POST /api/products/<slug>/reviews/`. В исходном ТЗ таблица API содержит примеры с `<id>`.
+Product API сохраняет slug routes, например `GET /api/products/<slug>/` и `GET/POST /api/products/<slug>/reviews/`. Для соответствия таблице ТЗ добавлен compatibility route `GET /api/products/<int:id>/`.
 
 ### Конфликт
 
@@ -1368,14 +1368,14 @@ Checkout переведён с always-success mock на `apps.payment_emulator`.
 
 Не ломать текущий API. Добавить compatibility routes по `id` и сохранить slug routes.
 
-### Что нужно сделать
+### Что изменилось по конфликту
 
-- Добавить `GET /api/products/<int:id>/`.
-- Добавить совместимость review endpoints, если она потребуется по итоговому API checklist.
-- Добавить `POST /api/users/login/` как alias JWT token obtain.
-- Добавить совместимый `GET/POST/PATCH/DELETE /api/cart/`.
-- Обновить Swagger/OpenAPI после реализации.
-- Обновить `docs/api.md` после реализации.
+- Существующие slug routes сохранены.
+- Добавлен `GET /api/products/<int:id>/`.
+- Добавлен `POST /api/users/login/` как alias JWT token obtain.
+- Добавлен совместимый `GET/POST/PATCH/DELETE /api/cart/`.
+- `GET/POST/PATCH/DELETE /api/cart/` переиспользует тот же cart service-layer, что и текущие `/api/cart/items/` endpoints.
+- Swagger/OpenAPI и `docs/api.md` обновлены.
 
 ## C037. Local dev stand vs production HTTPS
 

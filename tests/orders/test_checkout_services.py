@@ -3,7 +3,8 @@ from decimal import Decimal
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import RequestFactory
+from django.core import mail
+from django.test import RequestFactory, override_settings
 
 from apps.cart.services import add_to_cart, get_cart_snapshot
 from apps.orders.models import Order
@@ -66,6 +67,57 @@ def test_create_order_from_cart_creates_paid_order_and_payment(user, product):
     assert payment.provider == "payment_emulator"
     assert payment.amount == order.total_price
     assert payment.paid_at is not None
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    MYSHOP_ADMIN_EMAILS=["manager@example.com"],
+    DEFAULT_FROM_EMAIL="MyShop <noreply@example.com>",
+)
+def test_create_order_from_cart_sends_checkout_emails(user, product):
+    """Checkout отправляет русскоязычные письма покупателю и администратору."""
+
+    request = make_request(user)
+    add_to_cart(request, product, 1)
+    snapshot = get_cart_snapshot(request)
+
+    checkout_result = create_order_from_cart(
+        user=user,
+        cart_snapshot=snapshot,
+        shipping_data=make_shipping_data(),
+        payment_random_source=lambda total_weight: 0,
+    )
+
+    assert len(mail.outbox) == 2
+    assert mail.outbox[0].to == [checkout_result.order.customer_email]
+    assert mail.outbox[1].to == ["manager@example.com"]
+    assert f"Номер заказа: #{checkout_result.order.id}" in mail.outbox[0].body
+    assert "Статус оплаты: Успешно оплачен" in mail.outbox[0].body
+    assert product.name in mail.outbox[0].body
+
+
+def test_create_order_from_cart_ignores_email_backend_error(user, product, monkeypatch):
+    """Ошибка отправки email не откатывает уже созданный заказ."""
+
+    def raise_email_error(*args, **kwargs):  # noqa: ANN002, ANN003
+        """Сымитировать отказ внешнего SMTP backend."""
+
+        raise RuntimeError("SMTP недоступен")
+
+    monkeypatch.setattr("apps.orders.emails.send_mail", raise_email_error)
+    request = make_request(user)
+    add_to_cart(request, product, 1)
+    snapshot = get_cart_snapshot(request)
+
+    checkout_result = create_order_from_cart(
+        user=user,
+        cart_snapshot=snapshot,
+        shipping_data=make_shipping_data(),
+        payment_random_source=lambda total_weight: 0,
+    )
+
+    assert checkout_result.order.pk is not None
+    assert Payment.objects.filter(order=checkout_result.order, status=Payment.Status.SUCCEEDED).exists()
 
 
 @pytest.mark.parametrize(

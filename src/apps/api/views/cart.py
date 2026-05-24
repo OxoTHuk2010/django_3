@@ -28,7 +28,7 @@ class CartRequestMixin:
 
 
 class CartDetailAPIView(CartRequestMixin, APIView):
-    """Получить snapshot API-корзины текущего пользователя."""
+    """Compatibility endpoint API-корзины текущего пользователя."""
 
     permission_classes = (IsAuthenticated,)
 
@@ -37,6 +37,34 @@ class CartDetailAPIView(CartRequestMixin, APIView):
 
         snapshot = get_cart_snapshot(self.get_service_request(request))
         return Response(self.serialize_snapshot(snapshot))
+
+    def post(self, request):
+        """Добавить товар через совместимый `POST /api/cart/`."""
+
+        return CartItemCreateAPIView().post(request)
+
+    def patch(self, request):
+        """Изменить количество позиции через совместимый `PATCH /api/cart/`."""
+
+        serializer = CartAddSerializer(data=request.data)
+        if not serializer.is_valid():
+            return validation_error_response(serializer.errors)
+
+        product_id = serializer.validated_data["product_id"]
+        return CartItemDetailAPIView().patch(request, product_id=product_id)
+
+    def delete(self, request):
+        """Очистить корзину или удалить позицию через совместимый `DELETE /api/cart/`."""
+
+        product_id = request.data.get("product_id") if hasattr(request, "data") else None
+        if product_id:
+            try:
+                normalized_product_id = int(product_id)
+            except (TypeError, ValueError):
+                return validation_error_response({"product_id": ["Введите корректный id товара."]})
+            return CartItemDetailAPIView().delete(request, product_id=normalized_product_id)
+
+        return CartClearAPIView().delete(request)
 
 
 class CartItemCreateAPIView(CartRequestMixin, APIView):

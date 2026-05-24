@@ -15,6 +15,7 @@ MyShop — учебный проект интернет-магазина на Dj
 - регистрация, вход, профиль, смена пароля и история заказов;
 - отзывы на товары;
 - эмулятор оплаты с успешными, неуспешными, отменёнными и ожидающими исходами;
+- email-уведомления после checkout;
 - современная админка на базе стандартного Django Admin;
 - админская аналитика на `/admin/`;
 - REST API;
@@ -168,11 +169,16 @@ docker compose exec web python manage.py makemigrations --check --dry-run
 
 - `GET /api/products/`
 - `GET /api/products/<slug>/`
+- `GET /api/products/<id>/`
 - `GET /api/cart/`
+- `POST /api/cart/`
+- `PATCH /api/cart/`
+- `DELETE /api/cart/`
 - `POST /api/cart/items/`
 - `POST /api/orders/`
 - `GET /api/orders/`
 - `POST /api/users/register/`
+- `POST /api/users/login/`
 - `GET /api/products/<slug>/reviews/`
 - `POST /api/products/<slug>/reviews/`
 

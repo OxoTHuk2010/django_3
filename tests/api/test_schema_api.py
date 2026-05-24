@@ -13,5 +13,7 @@ def test_openapi_schema_is_available():
     assert response.status_code == 200
     content = response.content.decode()
     assert "/api/products/" in content
+    assert "/api/products/{id}/" in content
     assert "/api/cart/" in content
+    assert "/api/users/login/" in content
     assert "/api/orders/" in content

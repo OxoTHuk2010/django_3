@@ -43,7 +43,7 @@
 | `0031-myshop-brand-and-runtime-assets` | принято | Hop & Barley остаётся reference-концептом; runtime UI, branding и tracked assets принадлежат `MyShop` и не зависят от `src/prepare`. |
 | `0032-admin-ui-and-dashboard` | принято | Улучшаем стандартный Django Admin через branding, шаблоны, стили и staff dashboard без замены базовой admin-механики. |
 | `0033-payment-emulator` | принято, реализовано на этапе 25 | Checkout использует `apps.payment_emulator` с весами `succeeded=7`, `failed=1`, `cancelled=1`, `pending=1`; `payments` остаётся владельцем `Payment`. |
-| `0034-api-compatibility-routes` | принято | Slug routes сохраняются; id/login/cart compatibility routes добавляются поверх существующего API и переиспользуют service/error contracts. |
+| `0034-api-compatibility-routes` | принято, реализовано на этапе 27 | Slug routes сохраняются; id/login/cart compatibility routes добавлены поверх существующего API и переиспользуют service/error contracts. |
 | `0035-production-runtime` | принято | Dev stand остаётся на `runserver`, production runtime использует Gunicorn, Nginx, HTTPS, volumes, `collectstatic` и env-based secure settings. |
 | `0036-russian-demo-data` | принято | Пользовательские demo/template данные русифицируются, а `slug`, `SKU`, `username` и provider ids остаются ASCII. |
 | `0037-analytics-service-layer` | принято | Admin dashboard и GraphQL analytics используют общий read/service layer для одинаковых метрик и единых тестов агрегатов. |

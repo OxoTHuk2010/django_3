@@ -2,7 +2,7 @@
 
 Актуальный baseline проекта на 2026-05-24 вынесен в `docs/current-state.md`. Если подробный чек-лист ниже расходится с этим снимком, приоритет для планирования имеет `docs/current-state.md`, а roadmap нужно синхронизировать перед началом нового крупного этапа.
 
-Этапы 20-25 закрыты: baseline зафиксирован, runtime UI и demo-data русскоязычные, стандартная Django Admin улучшена, аналитика вынесена в общий service layer, checkout переведён на weighted payment emulator. Следующие крупные направления: email, compatibility API, GraphQL, CI и production runtime.
+Этапы 20-27 закрыты: baseline зафиксирован, runtime UI и demo-data русскоязычные, стандартная Django Admin улучшена, аналитика вынесена в общий service layer, checkout переведён на weighted payment emulator, добавлены email-уведомления и REST API compatibility routes. Следующие крупные направления: GraphQL, CI и production runtime.
 
 Roadmap фиксирует текущий прогресс и ближайшие шаги. Основные документы (`README`, `architecture`, `database`, `business-rules`) описывают целевую систему, а этот файл показывает фактическое состояние реализации.
 
@@ -18,7 +18,7 @@ Roadmap фиксирует текущий прогресс и ближайшие
 
 - [x] `.venv\Scripts\poetry.exe run python manage.py check` — проходит, `System check identified no issues (0 silenced)`.
 - [x] `.venv\Scripts\python.exe -m ruff check . --no-cache` — проходит, `All checks passed!`.
-- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `179 passed`, покрытие `90%`.
+- [x] `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` — проходит, `187 passed`, покрытие `90%`.
 
 ## Последняя Docker-проверка
 
@@ -605,51 +605,66 @@ Definition of Done этапа 25:
 
 ### Этап 26. Email-уведомления
 
-Статус: запланирован.
+Статус: закрыт 2026-05-24.
 
-- [ ] Добавить отправку email после checkout покупателю.
-- [ ] Добавить отправку email после checkout администратору.
-- [ ] Использовать console email backend или locmem backend в dev/test.
-- [ ] Использовать SMTP через env в production.
-- [ ] Сделать письма русскоязычными.
-- [ ] Включить в письмо номер заказа.
-- [ ] Включить в письмо статус оплаты.
-- [ ] Включить в письмо сумму.
-- [ ] Включить в письмо список товаров.
-- [ ] Включить в письмо адрес доставки.
-- [ ] Обеспечить безопасное поведение при ошибке отправки email.
-- [ ] Зафиксировать email-поведение в бизнес-документации после реализации.
+- [x] Добавить отправку email после checkout покупателю.
+- [x] Добавить отправку email после checkout администратору.
+- [x] Использовать console email backend или locmem backend в dev/test.
+- [x] Использовать SMTP через env в production.
+- [x] Сделать письма русскоязычными.
+- [x] Включить в письмо номер заказа.
+- [x] Включить в письмо статус оплаты.
+- [x] Включить в письмо сумму.
+- [x] Включить в письмо список товаров.
+- [x] Включить в письмо адрес доставки.
+- [x] Обеспечить безопасное поведение при ошибке отправки email.
+- [x] Зафиксировать email-поведение в бизнес-документации после реализации.
+
+Реализовано:
+
+- `apps.orders.emails` формирует русскоязычные checkout-письма покупателю и администраторам.
+- Email-настройки вынесены в env: `EMAIL_BACKEND`, SMTP-параметры, `DEFAULT_FROM_EMAIL`, `MYSHOP_ADMIN_EMAILS`.
+- Отправка выполняется после успешного транзакционного создания заказа.
+- Ошибка email backend логируется и не откатывает `Order`, `OrderItem` и `Payment`.
 
 Definition of Done этапа 26:
 
-- [ ] Roadmap фиксирует email как обязательный пункт ТЗ.
-- [ ] Тесты используют locmem backend.
-- [ ] Ошибка отправки email не ломает уже созданный заказ.
+- [x] Roadmap фиксирует email как обязательный пункт ТЗ.
+- [x] Тесты используют locmem backend.
+- [x] Ошибка отправки email не ломает уже созданный заказ.
 
 ### Этап 27. REST API compatibility
 
-Статус: запланирован.
+Статус: закрыт 2026-05-24.
 
-- [ ] Зафиксировать конфликт `C036` перед расширением API.
-- [ ] Сохранить существующие slug routes.
-- [ ] Добавить compatibility route `GET /api/products/<int:id>/`.
-- [ ] Добавить compatibility route `POST /api/users/login/`.
-- [ ] Добавить совместимый `GET /api/cart/`.
-- [ ] Добавить совместимый `POST /api/cart/`.
-- [ ] Добавить совместимый `PATCH /api/cart/`.
-- [ ] Добавить совместимый `DELETE /api/cart/`.
-- [ ] Не ломать текущие tests.
-- [ ] Не удалять существующие URL.
-- [ ] Обновить Swagger/OpenAPI после реализации.
-- [ ] Обновить `docs/api.md` после реализации.
-- [ ] Добавить примеры JWT login alias.
-- [ ] Добавить примеры cart compatibility payload.
+- [x] Зафиксировать конфликт `C036` перед расширением API.
+- [x] Сохранить существующие slug routes.
+- [x] Добавить compatibility route `GET /api/products/<int:id>/`.
+- [x] Добавить compatibility route `POST /api/users/login/`.
+- [x] Добавить совместимый `GET /api/cart/`.
+- [x] Добавить совместимый `POST /api/cart/`.
+- [x] Добавить совместимый `PATCH /api/cart/`.
+- [x] Добавить совместимый `DELETE /api/cart/`.
+- [x] Не ломать текущие tests.
+- [x] Не удалять существующие URL.
+- [x] Обновить Swagger/OpenAPI после реализации.
+- [x] Обновить `docs/api.md` после реализации.
+- [x] Добавить примеры JWT login alias.
+- [x] Добавить примеры cart compatibility payload.
+
+Реализовано:
+
+- `GET /api/products/<id>/` добавлен как compatibility route поверх публичного Product queryset.
+- `POST /api/users/login/` добавлен как alias SimpleJWT token obtain.
+- `GET/POST/PATCH/DELETE /api/cart/` добавлены поверх существующего cart service-layer.
+- Старые маршруты `/api/products/<slug>/`, `/api/cart/items/`, `/api/cart/items/<product_id>/` и `/api/cart/clear/` сохранены.
+- OpenAPI schema показывает compatibility routes.
 
 Definition of Done этапа 27:
 
-- [ ] Roadmap явно фиксирует разницу между текущим API и таблицей ТЗ.
-- [ ] Будущая реализация не удаляет существующие endpoint’ы.
-- [ ] Swagger показывает both current and compatibility routes.
+- [x] Roadmap явно фиксирует разницу между текущим API и таблицей ТЗ.
+- [x] Будущая реализация не удаляет существующие endpoint’ы.
+- [x] Swagger показывает both current and compatibility routes.
 
 ### Этап 28. GraphQL аналитика
 

@@ -52,6 +52,17 @@ def test_product_api_detail_uses_slug_lookup(product):
     assert response.data["url"] == f"/api/products/{product.slug}/"
 
 
+def test_product_api_detail_supports_id_compatibility_route(product):
+    """Compatibility Product API открывает тот же публичный товар по id."""
+
+    response = APIClient().get(reverse("api:product-detail-by-id", kwargs={"pk": product.pk}))
+
+    assert response.status_code == 200
+    assert response.data["id"] == product.id
+    assert response.data["slug"] == product.slug
+    assert response.data["url"] == f"/api/products/{product.slug}/"
+
+
 def test_product_api_filters_search_and_category(category):
     """Product API применяет существующие фильтры каталога к публичному queryset."""
 

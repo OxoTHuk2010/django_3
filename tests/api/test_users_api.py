@@ -43,3 +43,20 @@ def test_user_registration_api_requires_unique_email(user):
     assert response.status_code == 400
     assert response.data["code"] == "validation_error"
     assert "email" in response.data["fields"]
+
+
+def test_user_login_api_alias_returns_jwt_pair(user):
+    """Compatibility login endpoint возвращает JWT pair как стандартный token endpoint."""
+
+    response = APIClient().post(
+        reverse("api:user-login"),
+        {
+            "username": user.username,
+            "password": "strong-test-password",
+        },
+        format="json",
+    )
+
+    assert response.status_code == 200
+    assert response.data["access"]
+    assert response.data["refresh"]

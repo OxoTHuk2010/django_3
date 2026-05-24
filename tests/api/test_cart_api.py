@@ -54,6 +54,59 @@ def test_cart_api_adds_and_updates_db_cart(user, product):
     assert update_response.data["total_quantity"] == 3
 
 
+def test_cart_api_compatibility_endpoint_adds_updates_and_removes_item(user, product):
+    """Compatibility `/api/cart/` поддерживает POST, PATCH и DELETE для позиции."""
+
+    client = authenticated_client(user)
+
+    add_response = client.post(
+        reverse("api:cart-detail"),
+        {
+            "product_id": product.id,
+            "quantity": 2,
+        },
+        format="json",
+    )
+
+    assert add_response.status_code == 201
+    assert CartItem.objects.get(cart__user=user, product=product).quantity == 2
+
+    update_response = client.patch(
+        reverse("api:cart-detail"),
+        {
+            "product_id": product.id,
+            "quantity": 3,
+        },
+        format="json",
+    )
+
+    assert update_response.status_code == 200
+    assert CartItem.objects.get(cart__user=user, product=product).quantity == 3
+
+    remove_response = client.delete(
+        reverse("api:cart-detail"),
+        {
+            "product_id": product.id,
+        },
+        format="json",
+    )
+
+    assert remove_response.status_code == 200
+    assert not CartItem.objects.filter(cart__user=user, product=product).exists()
+
+
+def test_cart_api_compatibility_endpoint_deletes_all_items(user, cart, product):
+    """Compatibility `DELETE /api/cart/` без product_id очищает всю корзину."""
+
+    baker.make("cart.CartItem", cart=cart, product=product, quantity=2)
+
+    response = authenticated_client(user).delete(reverse("api:cart-detail"), format="json")
+
+    assert response.status_code == 200
+    assert response.data["is_empty"] is True
+    assert not CartItem.objects.filter(cart=cart).exists()
+
+
 def test_cart_api_rejects_quantity_over_stock(user, product):
     """API-корзина возвращает бизнес-ошибку при превышении остатка."""
 

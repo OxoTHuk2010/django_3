@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from apps.cart.services import CartSnapshot
 from apps.catalog.models import Product
+from apps.orders.emails import send_checkout_emails
 from apps.orders.models import Order, OrderItem
 from apps.payment_emulator.services import PaymentEmulatorResult, emulate_payment_result
 from apps.payments.models import Payment
@@ -106,11 +107,13 @@ def create_order_from_cart(
             paid_at=timezone.now() if payment_result.is_successful else None,
         )
 
-    return CheckoutResult(
+    checkout_result = CheckoutResult(
         order=order,
         payment=payment,
         payment_result=payment_result,
     )
+    send_checkout_emails(order=checkout_result.order, payment=checkout_result.payment)
+    return checkout_result
 
 
 def _get_locked_products(snapshot_items) -> dict[int, Product]:

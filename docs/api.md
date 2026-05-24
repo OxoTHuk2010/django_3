@@ -8,6 +8,7 @@ API-инфраструктура и основные доменные API endpoi
 
 - JWT token endpoint.
 - JWT refresh endpoint.
+- JWT login alias `/api/users/login/`.
 - OpenAPI schema.
 - Swagger UI.
 
@@ -29,6 +30,12 @@ API-инфраструктура и основные доменные API endpoi
 
 ```http
 POST /api/token/
+```
+
+Compatibility alias:
+
+```http
+POST /api/users/login/
 ```
 
 Пример тела запроса:
@@ -76,10 +83,14 @@ OpenAPI schema:
 
 - `GET /api/products/`
 - `GET /api/products/<slug>/`
+- `GET /api/products/<id>/` — compatibility route по внутреннему id
 
 Корзина:
 
 - `GET /api/cart/`
+- `POST /api/cart/` — compatibility add
+- `PATCH /api/cart/` — compatibility update
+- `DELETE /api/cart/` — compatibility remove или clear
 - `POST /api/cart/items/`
 - `PATCH /api/cart/items/<product_id>/`
 - `DELETE /api/cart/items/<product_id>/`
@@ -94,6 +105,7 @@ OpenAPI schema:
 Пользователи:
 
 - `POST /api/users/register/`
+- `POST /api/users/login/`
 
 Отзывы:
 
@@ -138,6 +150,54 @@ Authorization: Bearer <access-token>
 }
 ```
 
+Compatibility-добавление товара:
+
+```http
+POST /api/cart/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "product_id": 10,
+  "quantity": 2
+}
+```
+
+Compatibility-изменение количества:
+
+```http
+PATCH /api/cart/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "product_id": 10,
+  "quantity": 3
+}
+```
+
+Compatibility-удаление позиции:
+
+```http
+DELETE /api/cart/
+Authorization: Bearer <access-token>
+```
+
+```json
+{
+  "product_id": 10
+}
+```
+
+Compatibility-очистка корзины:
+
+```http
+DELETE /api/cart/
+Authorization: Bearer <access-token>
+```
+
 Создание заказа из текущей API-корзины:
 
 ```http
@@ -175,6 +235,7 @@ Authorization: Bearer <access-token>
 - API-корзина не поддерживает анонимную session-cart.
 - API-заказ создаётся только из текущей DB-корзины пользователя.
 - SimpleJWT endpoints могут возвращать стандартный формат ошибок библиотеки.
+- Compatibility routes добавлены поверх текущих endpoint'ов и не заменяют slug routes или `/api/cart/items/`.
 - Реальная платёжная интеграция не реализована, checkout использует `apps.payment_emulator`.
 - `POST /api/orders/` может создать заказ с payment outcome `succeeded`, `failed`, `cancelled` или `pending`.
 - API-корзина очищается только при `succeeded`; при `failed`, `cancelled` и `pending` корзина сохраняется для повторной попытки или дальнейшего решения оплаты.
