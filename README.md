@@ -202,6 +202,7 @@ docker build -f Dockerfile.production -t myshop-web:production-ci .
 - `docs/business-rules.md` — бизнес-правила.
 - `docs/api.md` — REST API, JWT и Swagger.
 - `docs/development.md` — запуск, конфигурация и troubleshooting.
+- `docs/deployment.md` — production deploy через self-hosted GitHub Actions runner.
 - `docs/testing.md` — стратегия и покрытие тестами.
 - `docs/roadmap.md` — этапы реализации.
 - `docs/conflicts.md` — открытые архитектурные вопросы.

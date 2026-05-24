@@ -55,10 +55,11 @@ Roadmap отражает фактические этапы реализации 
 - [x] 28. GraphQL исключён из текущего scope.
 - [x] 29. GitHub Actions CI.
 - [x] 30. Production runtime.
+- [x] 31. Production deploy workflow для self-hosted runner.
 
 ## Финальная стабилизация
 
-- [ ] 31. Clean-run по README на чистой базе.
+- [ ] 32. Clean-run по README на чистой базе.
 - [ ] Проверить ручной web-smoke после `seed_demo_data`.
 - [ ] Проверить Swagger и основные API-запросы с JWT.
 - [ ] Проверить GitHub Actions после push/PR.

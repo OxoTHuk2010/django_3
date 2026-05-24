@@ -1,0 +1,90 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production VM
+    runs-on: self-hosted
+    environment: production
+
+    env:
+      DOMAIN: myshop.iiitopm.ru
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create production env file
+        shell: bash
+        env:
+          PRODUCTION_SECRET_KEY: ${{ secrets.PRODUCTION_SECRET_KEY }}
+          PRODUCTION_DB_NAME: ${{ secrets.PRODUCTION_DB_NAME }}
+          PRODUCTION_DB_USER: ${{ secrets.PRODUCTION_DB_USER }}
+          PRODUCTION_DB_PASSWORD: ${{ secrets.PRODUCTION_DB_PASSWORD }}
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+        run: |
+          set -eu
+          for name in PRODUCTION_SECRET_KEY PRODUCTION_DB_NAME PRODUCTION_DB_USER PRODUCTION_DB_PASSWORD LETSENCRYPT_EMAIL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::GitHub Secret is required: $name"
+              exit 1
+            fi
+          done
+
+          umask 077
+          {
+            printf '%s\n' "COMPOSE_PROJECT_NAME=myshop"
+            printf '%s\n' "DEBUG=0"
+            printf '%s\n' "SECRET_KEY=$PRODUCTION_SECRET_KEY"
+            printf '%s\n' "ALLOWED_HOSTS=myshop.iiitopm.ru"
+            printf '%s\n' "CSRF_TRUSTED_ORIGINS=https://myshop.iiitopm.ru"
+            printf '%s\n' "SECURE_COOKIES=1"
+            printf '%s\n' "DB_NAME=$PRODUCTION_DB_NAME"
+            printf '%s\n' "DB_USER=$PRODUCTION_DB_USER"
+            printf '%s\n' "DB_PASSWORD=$PRODUCTION_DB_PASSWORD"
+            printf '%s\n' "DB_HOST=db"
+            printf '%s\n' "DB_PORT=5432"
+            printf '%s\n' "DJANGO_SETTINGS_MODULE=config.settings.production"
+            printf '%s\n' "EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend"
+            printf '%s\n' "EMAIL_HOST=localhost"
+            printf '%s\n' "EMAIL_PORT=25"
+            printf '%s\n' "EMAIL_HOST_USER="
+            printf '%s\n' "EMAIL_HOST_PASSWORD="
+            printf '%s\n' "EMAIL_USE_TLS=0"
+            printf '%s\n' "EMAIL_TIMEOUT=10"
+            printf '%s\n' "DEFAULT_FROM_EMAIL=MyShop <noreply@myshop.iiitopm.ru>"
+            printf '%s\n' "MYSHOP_ADMIN_EMAILS=admin@myshop.iiitopm.ru"
+            printf '%s\n' "NGINX_SERVER_NAME=myshop.iiitopm.ru"
+            printf '%s\n' "SECURE_SSL_REDIRECT=1"
+            printf '%s\n' "SECURE_HSTS_SECONDS=31536000"
+            printf '%s\n' "SECURE_HSTS_INCLUDE_SUBDOMAINS=1"
+            printf '%s\n' "SECURE_HSTS_PRELOAD=0"
+            printf '%s\n' "GUNICORN_PORT=8000"
+            printf '%s\n' "GUNICORN_WORKERS=3"
+            printf '%s\n' "GUNICORN_TIMEOUT=60"
+            printf '%s\n' "LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL"
+          } > .env.production
+
+      - name: Validate production compose
+        run: docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+
+      - name: Deploy
+        shell: bash
+        env:
+          DOMAIN: myshop.iiitopm.ru
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+        run: sh docker/deploy-production.sh
+
+      - name: Remove production env file
+        if: always()
+        shell: bash
+        run: rm -f .env.production

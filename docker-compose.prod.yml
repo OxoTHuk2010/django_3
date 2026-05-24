@@ -64,7 +64,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/nginx/templates:/etc/nginx/templates:ro
+      - ${NGINX_TEMPLATES_DIR:-./docker/nginx/templates}:/etc/nginx/templates:ro
       - static_data:/var/www/static:ro
       - media_data:/var/www/media:ro
       - certbot_www:/var/www/certbot

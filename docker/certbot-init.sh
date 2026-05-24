@@ -11,7 +11,7 @@ if [ "${LETSENCRYPT_EMAIL:-}" = "" ]; then
     exit 1
 fi
 
-docker compose -f docker-compose.prod.yml run --rm certbot \
+docker compose -f docker-compose.prod.yml run --rm --entrypoint certbot certbot \
     certonly \
     --webroot \
     -w /var/www/certbot \

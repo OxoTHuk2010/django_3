@@ -150,6 +150,7 @@ activemq-data/
 # Environments
 .env
 .envrc
+.env.production
 .venv
 env/
 venv/
@@ -193,6 +194,7 @@ cython_debug/
 
 # Local working instructions and private notes
 .local-instructions/
+.deploy/
 
 # Visual Studio Code
 #   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore

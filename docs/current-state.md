@@ -24,6 +24,7 @@
 - Runtime UI и demo-data русскоязычные, технические ключи остаются ASCII.
 - CI выполняет проверки Django, миграций, Ruff, mypy, pytest и сборку Docker images.
 - Production runtime отделён от dev runtime.
+- Production deploy готовится через self-hosted GitHub Actions runner для домена `myshop.iiitopm.ru`.
 
 ## Проверенный baseline
 
@@ -43,7 +44,7 @@
 ## Ограничения
 
 - Полная HTTPS-проверка требует внешний домен, DNS и доступные порты 80/443.
-- GitHub Actions подтверждается после push или pull request.
+- GitHub Actions и production deploy подтверждаются после push или ручного запуска workflow.
 - Повторная оплата уже созданного неоплаченного заказа не выделена в отдельный пользовательский сценарий.
 - API versioning пока не вводился.
 
@@ -53,5 +54,5 @@
 
 1. Пройти clean-run по README на чистой базе.
 2. Проверить UI вручную после seed-demo данных.
-3. Проверить CI после push/PR.
+3. Проверить CI и deploy workflow после push/PR или ручного запуска.
 4. Зафиксировать финальный release baseline в документации.

@@ -133,6 +133,8 @@ docker compose -f docker-compose.prod.yml exec web python manage.py check
 
 Полная HTTPS-проверка требует домен, DNS и открытые порты 80/443.
 
+Production deploy через GitHub Actions описан в `docs/deployment.md`.
+
 ## Pre-commit
 
 ```bash
