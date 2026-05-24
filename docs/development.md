@@ -1,11 +1,29 @@
-# Разработка
+﻿# Разработка
 
-## Установка
+## Требования
+
+- Python 3.12
+- Poetry
+- Docker и Docker Compose
+- PostgreSQL 16 для локального запуска без Docker
+
+## Настройка окружения
 
 ```bash
 poetry install
 cp .env.example .env
 ```
+
+Заполните в `.env` как минимум:
+
+- `SECRET_KEY`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_HOST`
+- `DB_PORT`
+
+Секреты не хранятся в репозитории. Для production используйте переменные окружения или secrets-хранилище платформы.
 
 ## Локальный запуск
 
@@ -15,7 +33,7 @@ poetry run python manage.py migrate
 poetry run python manage.py runserver
 ```
 
-## Docker
+## Запуск через Docker
 
 ```bash
 cp .env.example .env
@@ -27,141 +45,121 @@ docker compose up -d --build
 ```bash
 docker compose ps
 docker compose exec web python manage.py check
+docker compose exec web python manage.py makemigrations --check --dry-run
 ```
 
-## Адреса
+Миграции и состояние БД предпочтительно проверять через актуально пересобранный Docker Compose.
 
-- Admin: `http://localhost:8000/admin/`
-- Swagger UI: `http://localhost:8000/api/docs/`
-- OpenAPI schema: `http://localhost:8000/api/schema/`
-
-## Настройки
-
-Основной settings module для разработки:
-
-```bash
-DJANGO_SETTINGS_MODULE=config.settings.local
-```
-
-Переменные окружения описаны в `.env.example`.
-
-Основные параметры:
-
-- `DEBUG`
-- `SECRET_KEY`
-- `ALLOWED_HOSTS`
-- `CSRF_TRUSTED_ORIGINS`
-- `SECURE_COOKIES`
-- `DB_NAME`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_HOST`
-- `DB_PORT`
-- `EMAIL_BACKEND`
-- `EMAIL_HOST`
-- `EMAIL_PORT`
-- `EMAIL_HOST_USER`
-- `EMAIL_HOST_PASSWORD`
-- `EMAIL_USE_TLS`
-- `EMAIL_TIMEOUT`
-- `DEFAULT_FROM_EMAIL`
-- `MYSHOP_ADMIN_EMAILS`
-- `DJANGO_SETTINGS_MODULE`
-
-## Проверки качества
+## Quality gates
 
 ```bash
 poetry run python manage.py check
-poetry run ruff check .
-poetry run ruff format .
-poetry run pytest
+poetry run python manage.py makemigrations --check --dry-run
+poetry run ruff check . --no-cache
+poetry run mypy src
+poetry run pytest -q -p no:cacheprovider
 ```
+
+Если тесты запускаются с host-машины против PostgreSQL из Docker, используйте `DB_HOST=localhost`. Внутри контейнера используется `DB_HOST=db`.
 
 ## Миграции
 
-Основной путь для проверки миграций и БД в проекте — через актуально пересобранный Docker Compose:
-
-```bash
-docker compose up -d --build
-```
-
-Создать миграции внутри `web`:
+Создать миграции внутри контейнера:
 
 ```bash
 docker compose exec web python manage.py makemigrations
 ```
 
-Применить миграции внутри `web`:
+Применить миграции:
 
 ```bash
 docker compose exec web python manage.py migrate
 ```
 
-Проверить, что новых миграций нет:
+Проверить отсутствие незакоммиченных миграций:
 
 ```bash
 docker compose exec web python manage.py makemigrations --check --dry-run
 ```
 
-Локальный запуск миграций через Poetry допустим только если локальный PostgreSQL поднят и параметры `.env` указывают на него:
-
-```bash
-poetry run python manage.py makemigrations
-poetry run python manage.py migrate
-```
-
-## Pre-commit
-
-Установить hooks:
-
-```bash
-poetry run pre-commit install
-```
-
-Запустить вручную:
-
-```bash
-poetry run pre-commit run --all-files
-```
-
 ## Demo-данные
-
-Создать или обновить демонстрационные данные:
 
 ```bash
 python manage.py seed_demo_data
 ```
 
-Безопасно пересоздать только seed-owned demo-данные в локальном окружении:
+Для demo-пользователей пароль задаётся только через окружение:
+
+```powershell
+$env:MYSHOP_DEMO_PASSWORD = Read-Host "Demo password"
+python manage.py seed_demo_data
+```
+
+Если `MYSHOP_DEMO_PASSWORD` не задан, demo-пользователи создаются с unusable password.
+
+Reset seed-owned данных:
 
 ```bash
 python manage.py seed_demo_data --reset --yes
 ```
 
-Команда не зависит от `src/prepare/` в runtime и не должна использоваться как способ очистки всей базы.
+Команда reset заблокирована для production-like окружений.
+
+## Production runtime
+
+Production-сценарий отделён от dev-сценария:
+
+- dev: `docker-compose.yml`, Django `runserver`;
+- production: `docker-compose.prod.yml`, Gunicorn, Nginx, certbot, static/media volumes.
+
+Проверка production compose:
+
+```bash
+docker compose -f docker-compose.prod.yml config
+```
+
+Сборка production image:
+
+```bash
+docker build -f Dockerfile.production -t myshop-web:production-ci .
+```
+
+Проверка `db + web` без HTTPS:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build db web
+docker compose -f docker-compose.prod.yml exec web python manage.py check
+```
+
+Полная HTTPS-проверка требует домен, DNS и открытые порты 80/443.
+
+## Pre-commit
+
+```bash
+poetry run pre-commit install
+poetry run pre-commit run --all-files
+```
 
 ## Troubleshooting
 
 ### `poetry` не найден
 
-Если `poetry` не доступен глобально, можно использовать Poetry из виртуального окружения:
+Используйте Poetry из виртуального окружения:
 
-```bash
+```powershell
 .venv\Scripts\poetry.exe run python manage.py check
 ```
 
-### Docker-контейнер не отражает последние изменения кода
-
-Пересобрать контейнер:
+### Контейнер не видит свежие изменения
 
 ```bash
 docker compose up -d --build
 ```
 
-### PostgreSQL недоступен с хоста
+### Локальные тесты не подключаются к БД
 
-При работе через Docker предпочтительно выполнять команды внутри контейнера:
+Проверьте `DB_HOST`. Для host-машины обычно нужен `localhost`, для контейнера — `db`.
 
-```bash
-docker compose exec web python manage.py migrate
-```
+### Production settings не стартуют
+
+Проверьте обязательные переменные: `SECRET_KEY`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`.

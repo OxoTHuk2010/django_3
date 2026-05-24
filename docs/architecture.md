@@ -1,176 +1,107 @@
-# Архитектура
+﻿# Архитектура
 
-Текущий архитектурный baseline и ближайшие реализуемые этапы см. в `docs/current-state.md`.
-
-## Назначение
-
-MyShop — монолитный Django-проект интернет-магазина. Архитектура строится вокруг отдельных доменных приложений, чтобы не смешивать пользователей, каталог, корзину, заказы, отзывы, оплату и API в одном модуле.
+MyShop — монолитный Django-проект с разделением по доменным приложениям и явными границами между HTTP-слоем, бизнес-логикой и доступом к данным.
 
 ## Приложения
 
-- `common` — общие абстрактные модели и переиспользуемые базовые сущности.
-- `users` — кастомная модель пользователя, регистрация, вход, профиль и личный кабинет.
-- `catalog` — категории, товары, изображения товаров и публичные страницы каталога.
-- `cart` — корзина, service-layer операций корзины, web-маршруты и шаблон текущей корзины.
-- `orders` — checkout, сервис создания заказа, email-уведомления, заказы и позиции заказов.
-- `reviews` — отзывы на товары, проверка права оставить отзыв и web-сценарий создания отзыва.
-- `payments` — платежи и статусы оплаты.
-- `payment_emulator` — симуляция результата платёжного провайдера без владения моделью `Payment`.
-- `api` — централизованный REST API-слой: serializers, views/viewsets, permissions, filters, pagination, schema и маршруты.
+- `common` — общие абстрактные модели, аналитика и переиспользуемые utilities.
+- `users` — пользователь, регистрация, вход, профиль и личный кабинет.
+- `catalog` — категории, товары, изображения и публичный каталог.
+- `cart` — session-cart, DB-cart и операции корзины.
+- `orders` — checkout, заказы, позиции заказов и email-уведомления.
+- `reviews` — отзывы, проверка права оставить отзыв и модерация.
+- `payments` — модель платежа и статусы оплаты.
+- `payment_emulator` — симуляция результата платёжного провайдера.
+- `api` — REST API, serializers, views, permissions, schema и routes.
 
-## Слои приложения
+## Слои
 
-- `models.py` — структура данных и базовые инварианты.
+- `models.py` — структура данных и базовые ограничения.
+- `selectors.py` — read/query logic.
+- `services.py` — бизнес-операции, изменяющие состояние.
+- `forms.py` — валидация web-ввода.
+- `views.py` — HTTP-слой без тяжёлой бизнес-логики.
 - `admin.py` — административный интерфейс.
-- `services.py` — бизнес-операции, которые меняют состояние системы.
-- `selectors.py` — сложные queryset для чтения данных.
-- `views.py` — HTTP-обработчики без тяжёлой бизнес-логики.
-- `apps/api/` — централизованный DRF-слой, который реализует внешний REST-контракт и вызывает доменные сервисы.
+- `apps/api/` — внешний REST-контракт.
 
-## Основные архитектурные принципы
+## Принципы
 
-- View не должна содержать длинную бизнес-логику.
-- Создание заказа должно находиться в сервисном слое.
-- Queryset-логика каталога и заказов должна выноситься в selectors.
-- Пользовательские фильтры каталога должны находиться в `filters.py`, чтобы не раздувать `views.py`.
-- API-код должен находиться централизованно в `apps/api` по ADR 0023.
-- Доменные приложения остаются владельцами моделей, бизнес-правил и service-layer.
-- Правила домена должны быть описаны в `docs/business-rules.md` и покрываться тестами.
+- Views вызывают services/selectors и не содержат длинную бизнес-логику.
+- Checkout выполняется через service layer и транзакцию.
+- API переиспользует доменные сервисы и не дублирует бизнес-правила.
+- Selectors каталога скрывают неактивные и soft-deleted сущности.
+- Пользовательские данные фильтруются по текущему пользователю.
+- Security-sensitive значения передаются через окружение, а не через код.
 
-## Публичный web-интерфейс
+## Web routes
 
-- `/` — главная страница магазина с короткой витриной активных товаров.
-- `/products/` — список товаров с поиском, фильтрами, сортировкой и пагинацией.
-- `/products/<slug>/` — детальная страница публичного товара.
-- `/cart/` — текущая корзина гостя или авторизованного пользователя.
-- `/cart/add/<product_id>/` — POST-добавление товара в корзину.
-- `/cart/update/<product_id>/` — POST-изменение количества.
-- `/cart/remove/<product_id>/` — POST-удаление позиции.
-- `/cart/clear/` — POST-очистка корзины.
-- `/checkout/` — оформление заказа для авторизованного пользователя.
-- `/accounts/register/` — регистрация пользователя.
-- `/accounts/login/` — вход пользователя.
-- `/accounts/logout/` — выход пользователя.
-- `/account/` — профиль текущего пользователя.
-- `/account/edit/` — редактирование профиля.
-- `/account/password/` — смена пароля.
-- `/account/orders/` — история заказов текущего пользователя.
-- `/account/orders/<id>/` — детальная страница заказа текущего пользователя.
-- `/reviews/products/<slug>/add/` — POST-создание отзыва на товар, реализуется в приложении `reviews`.
-- Web-представления каталога собирают queryset и передают данные в шаблоны.
-- Web-представления корзины остаются тонким HTTP-слоем: они читают форму, вызывают `apps/cart/services.py`, ставят messages и выполняют redirect.
-- Web-представление checkout остаётся тонким HTTP-слоем: валидирует форму, получает snapshot корзины, вызывает `apps/orders/services.py`, очищает корзину только после успешной оплаты и выполняет redirect.
-- Представления личного кабинета фильтруют заказы по `request.user`, поэтому чужой заказ по id возвращает 404.
-- Детальная страница товара содержит POST-форму добавления в корзину, если товар есть в наличии.
-- На этапе отзывов детальная страница товара может показывать форму отзыва, но создание `Review` должно проходить через `reviews.views` и `reviews.services`.
-
-## Административный интерфейс
-
-- `/admin/` остаётся стандартным Django Admin и использует штатные CRUD-сценарии, permissions, inline forms и admin actions.
-- Кастомизация этапа 23 ограничена шаблонами `src/templates/admin/`, стилями `src/static/admin_shop/` и настройками branding в `apps.common.admin`.
-- `src/templates/admin/base_site.html` добавляет бренд MyShop Admin и верхнюю навигацию к Dashboard, товарам, заказам, платежам, отзывам и пользователям.
-- `src/templates/admin/index.html` добавляет staff dashboard с быстрыми переходами, но не вводит отдельную систему авторизации и не обходит права Django Admin.
-- `ProductAdmin` остаётся владельцем администрирования товаров и дополнительно показывает бейджи наличия, видимости и быстрые ссылки на редактирование и публичную карточку товара.
-- Admin-статика отделена от публичной статики магазина: `src/static/admin_shop/` не должна зависеть от reference-директории `src/prepare`.
-- Админская аналитика использует общий read/service слой `apps.common.analytics`, поэтому расчёты не находятся в шаблонах или admin view.
-- `/admin/` получает агрегаты через `admin.site.index` extra context и остаётся защищённым стандартным staff-доступом Django Admin.
-- Текущий набор аналитики: выручка по успешным платежам, количество заказов, средний чек по подтверждённым заказам, новые пользователи, оплаченные заказы, ожидающие оплаты, неуспешные платежи, низкие остатки, топ товаров и отзывы на модерации.
-- Периоды аналитики: сегодня, 7 дней, 30 дней и всё время.
+- `/` — главная страница.
+- `/products/` — список товаров.
+- `/products/<slug>/` — карточка товара.
+- `/cart/` — корзина.
+- `/checkout/` — оформление заказа.
+- `/accounts/register/`, `/accounts/login/`, `/accounts/logout/` — auth flow.
+- `/account/`, `/account/edit/`, `/account/password/`, `/account/orders/` — личный кабинет.
+- `/reviews/products/<slug>/add/` — создание отзыва.
+- `/admin/` — Django Admin.
 
 ## Аутентификация
 
-- Web-интерфейс использует Django sessions.
-- После успешного web-входа session-cart объединяется с DB-корзиной пользователя.
-- REST API использует JWT через SimpleJWT.
-- API-корзина и API-checkout требуют JWT и работают только с DB-cart авторизованного пользователя.
-
-## REST API
-
-REST API реализуется централизованно в приложении `apps/api`.
-
-- `apps/api` владеет публичным API-контрактом, сериализаторами, permissions, pagination, filters, schema и API-маршрутами.
-- Доменные приложения не содержат API-serializers/views для этапа 12.
-- API-слой не должен содержать бизнес-логику: операции корзины, заказов и отзывов вызывают доменные сервисы.
-- Product API использует `slug` как публичный lookup товара.
-- Compatibility Product API дополнительно поддерживает lookup по `id` без удаления slug route.
-- Compatibility cart API поддерживает `GET/POST/PATCH/DELETE /api/cart/`, но переиспользует тот же cart service-layer.
-- `POST /api/users/login/` является alias SimpleJWT token obtain.
-- Review API использует `slug` товара и сервисы приложения `reviews`.
-- Собственные API endpoints проекта должны возвращать ошибки в едином JSON-формате по ADR 0029.
+- Web использует Django sessions.
+- После web-login session-cart объединяется с DB-cart пользователя.
+- REST API использует JWT access/refresh через SimpleJWT.
+- API-корзина и API-checkout работают только с авторизованным JWT-пользователем.
 
 ## Checkout
 
-Checkout реализован как связка `cart.services` и `orders.services`.
+Checkout состоит из `cart.services` и `orders.services`:
 
-- `cart.services` отвечает за чтение, нормализацию и очистку корзины.
-- `orders.services.create_order_from_cart()` отвечает за атомарное создание заказа.
-- `create_order_from_cart()` принимает `CartSnapshot`, но внутри транзакции повторно блокирует и перечитывает товары через `select_for_update()`.
-- Заказ создаётся по правилу all-or-nothing.
-- Результат оплаты приходит из `apps.payment_emulator`.
-- При `succeeded` заказ получает статус `paid`, платёж получает статус `succeeded`, остатки уменьшаются, корзина очищается.
-- При `failed`, `cancelled` или `pending` заказ остаётся в статусе `new`, платёж фиксирует соответствующий статус, остатки не уменьшаются, корзина сохраняется.
-- `orders.emails` отправляет best-effort письма покупателю и администраторам после checkout; ошибка отправки логируется и не откатывает заказ.
+1. Корзина нормализуется и превращается в snapshot.
+2. `create_order_from_cart()` открывает транзакцию.
+3. Товары повторно читаются и блокируются через `select_for_update()`.
+4. Создаются `Order`, `OrderItem` и `Payment`.
+5. Остатки уменьшаются только при `payment.status = succeeded`.
+6. Корзина очищается только при успешной оплате.
+7. Email-уведомления отправляются best-effort и не откатывают заказ.
 
-## Настройки
+## Admin
 
-Настройки разделены на:
+Админка остаётся стандартным Django Admin. Кастомизация ограничена branding, шаблонами, CSS, dashboard, actions и быстрыми ссылками. Права доступа и CRUD-механика Django Admin не обходятся.
 
-- `config.settings.base` — общая база;
-- `config.settings.local` — локальная разработка;
-- `config.settings.production` — production-окружение.
+Аналитика считается в `apps.common.analytics`, а не в шаблонах. Dashboard получает агрегаты через admin context.
 
-Переключение выполняется через `DJANGO_SETTINGS_MODULE`.
+## REST API
 
-## Инфраструктура
+REST API централизован в `apps/api`:
 
-Для разработки используются:
+- products: публичный список и карточка;
+- cart: JWT-only DB-cart;
+- orders: JWT-only список, детали и checkout;
+- users: регистрация и login alias;
+- reviews: список опубликованных отзывов и создание отзыва;
+- schema/docs: OpenAPI и Swagger.
 
-- Poetry для зависимостей;
-- Docker Compose для web + PostgreSQL;
-- Ruff для lint/format;
-- pytest для тестов.
+Собственные API endpoints используют единый формат ошибок `{code, detail, fields}`.
 
-Docker Compose предназначен для локальной разработки, не для production-деплоя.
+## Runtime
 
-## Архитектурные решения
+Dev runtime:
 
-ADR находятся в `docs/decisions/`.
+- `docker-compose.yml`;
+- Django `runserver`;
+- PostgreSQL service.
 
-Текущие решения:
+Production runtime:
 
-- `0001-use-poetry.md` — использовать Poetry.
-- `0002-session-cart.md` — использовать гибридную корзину: session для гостя и DB для авторизованного пользователя.
-- `0003-jwt-for-api.md` — использовать JWT для REST API.
-- `0004-order-transaction.md` — создавать заказ транзакционно.
-- `0005-domain-model.md` — разделить домен по приложениям.
-- `0006-soft-delete.md` — использовать soft delete ограниченно: только для `catalog.Category` и `catalog.Product`.
-- `0007-username-user-login.md` — использовать `username` как основной логин пользователя.
-- `0008-payment-order.md` — разрешить несколько платежей на один заказ с ограничением на один успешный платёж.
-- `0009-img-source.md` — использовать `ProductImage` как единственный источник изображений товара на детальной странице.
-- `0010-button.md` — показывать disabled-кнопку покупки до реализации корзины.
-- `0011-reviews-rating.md` — показывать только read-only опубликованные отзывы и рейтинг.
-- `0012-rule-product.md` — выбирать похожие товары из той же категории.
-- `0013-cart-web-routes.md` — использовать отдельные web-маршруты корзины с POST-действиями.
-- `0014-cart-service-layer.md` — держать бизнес-логику корзины в `apps/cart/services.py`.
-- `0015-cart-merge-timing.md` — реализовать merge-сервис на этапе корзины и явно подключить его к пользовательскому login-flow без `user_logged_in` signal.
-- `0016-cart-quantity-policy.md` — зафиксировать правила `add`, `update`, merge и системный лимит позиции.
-- `0017-session-cart-invalid-products.md` — нормализовать битые и недоступные позиции session-cart в service-layer.
-- `0021-review-eligible-order-status.md` — считать подтверждённой покупкой заказ с товаром в статусе `paid`, `processing`, `shipped` или `completed`.
-- `0022-review-web-create-contract.md` — создавать отзывы через приложение `reviews` по POST `/reviews/products/<slug>/add/`.
-- `0023-api-architecture-boundary.md` — держать REST API-контракт централизованно в `apps/api`.
-- `0024-product-api-contract.md` — использовать `slug` как публичный lookup Product API.
-- `0025-api-cart-contract.md` — сделать API-корзину JWT-only поверх DB-cart.
-- `0026-api-order-create-contract.md` — создавать API-заказ только из текущей API-корзины.
-- `0027-api-registration-jwt.md` — возвращать JWT pair после API-регистрации.
-- `0028-review-api-contract.md` — использовать `slug` товара и review service-layer в Review API.
-- `0029-api-error-permissions-contract.md` — использовать единый формат ошибок и permissions в REST API.
-- `0030-seed-data-policy.md` — сделать seed-команду идемпотентной и не зависящей от `src/prepare/` в runtime.
-- `0031-myshop-brand-and-runtime-assets.md` — оставить публичный runtime-бренд `MyShop` и не зависеть от `src/prepare`.
-- `0032-admin-ui-and-dashboard.md` — улучшать стандартный Django Admin без замены admin-механики.
-- `0033-payment-emulator.md` — использовать отдельный weighted payment emulator для исходов оплаты.
-- `0034-api-compatibility-routes.md` — добавить compatibility routes без удаления текущего API.
-- `0035-production-runtime.md` — разделить dev runtime и production runtime.
-- `0036-russian-demo-data.md` — держать пользовательские demo-data на русском языке.
-- `0037-analytics-service-layer.md` — считать аналитику через общий read/service слой.
+- `docker-compose.prod.yml`;
+- `Dockerfile.production`;
+- Gunicorn;
+- Nginx;
+- static/media volumes;
+- certbot/Let's Encrypt.
 
-Журнал конфликтов и статусы закрытия решений см. в `docs/conflicts.md`.
+Production settings требуют внешние секреты и безопасные host/origin значения.
+
+## ADR
+
+Архитектурные решения находятся в `docs/decisions/`. Индекс действующих решений: `docs/decisions/README.md`.

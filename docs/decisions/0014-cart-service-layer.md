@@ -103,9 +103,5 @@ Views остаются тонким HTTP-слоем и отвечают толь
 ## Связанные документы
 
 - `docs/decisions/0002-session-cart.md`
-- `docs/decisions/0013-cart-web-routes.md`
-- `docs/decisions/0015-cart-merge-timing.md`
-- `docs/decisions/0016-cart-quantity-policy.md`
-- `docs/decisions/0017-session-cart-invalid-products.md`
-- `docs/conflicts.md`
-- `docs/roadmap.md`
+- `docs/business-rules.md`
+- `docs/architecture.md`

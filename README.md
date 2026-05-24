@@ -1,27 +1,23 @@
-# MyShop
+﻿# MyShop
 
-Актуальный инженерный снимок проекта, результаты проверок и ближайшие этапы зафиксированы в `docs/current-state.md`.
+MyShop — демонстрационный интернет-магазин на Django с web-интерфейсом, REST API, JWT-аутентификацией, PostgreSQL, Docker, CI и production runtime.
 
-MyShop — учебный проект интернет-магазина на Django. Цель проекта — собрать небольшой, аккуратный backend-продукт с веб-интерфейсом, корзиной, заказами, личным кабинетом, REST API, JWT-авторизацией, Swagger-документацией, PostgreSQL, Docker, Poetry, тестами и понятной инженерной документацией.
+Документация ведётся на русском языке. Актуальное состояние проекта фиксируется в `docs/current-state.md`, архитектурные решения — в `docs/decisions/`.
 
 ## Возможности
 
-Планируемая функциональность:
-
-- каталог товаров и категорий;
-- страница товара с изображениями, остатками, рейтингом и отзывами;
-- корзина для гостя через session и для авторизованного пользователя через DB;
-- оформление заказа для авторизованного пользователя;
-- регистрация, вход, профиль, смена пароля и история заказов;
-- отзывы на товары;
-- эмулятор оплаты с успешными, неуспешными, отменёнными и ожидающими исходами;
-- email-уведомления после checkout;
-- современная админка на базе стандартного Django Admin;
-- админская аналитика на `/admin/`;
-- REST API;
-- JWT-авторизация для API;
-- Swagger/OpenAPI документация;
-- Docker Compose окружение с PostgreSQL.
+- Каталог товаров с поиском, фильтрами, сортировкой и пагинацией.
+- Карточка товара с изображениями, остатками, рейтингом, отзывами и похожими товарами.
+- Корзина для гостя через session и для авторизованного пользователя через DB.
+- Checkout с транзакционным созданием заказа и повторной проверкой остатков.
+- Личный кабинет: профиль, редактирование данных, смена пароля, история и детали заказов.
+- Отзывы с проверкой подтверждённой покупки и модерацией.
+- Эмулятор оплаты с исходами `succeeded`, `failed`, `cancelled`, `pending`.
+- Email-уведомления после checkout в режиме best-effort.
+- Django Admin с branding, быстрыми ссылками, actions и staff dashboard.
+- REST API с JWT, Swagger/OpenAPI и compatibility routes.
+- GitHub Actions CI.
+- Production runtime на Gunicorn, Nginx и certbot/Let's Encrypt.
 
 ## Стек
 
@@ -30,119 +26,53 @@ MyShop — учебный проект интернет-магазина на Dj
 - Django REST Framework
 - SimpleJWT
 - drf-spectacular
-- PostgreSQL
+- PostgreSQL 16
 - Poetry
 - Docker Compose
 - Ruff
+- mypy
 - pytest
 
-## Структура проекта
+## Структура
 
 ```text
 myshop/
 ├── src/
 │   ├── config/
-│   │   ├── settings/
-│   │   │   ├── base.py
-│   │   │   ├── local.py
-│   │   │   └── production.py
-│   │   ├── urls.py
-│   │   ├── asgi.py
-│   │   └── wsgi.py
-│   │
 │   ├── apps/
-│   │   ├── common/
-│   │   ├── users/
-│   │   ├── catalog/
-│   │   ├── cart/
-│   │   ├── orders/
-│   │   ├── reviews/
-│   │   ├── payments/
-│   │   ├── payment_emulator/
-│   │   └── api/
-│   │
 │   ├── templates/
 │   ├── static/
 │   └── media/
-│
 ├── docs/
-│   ├── architecture.md
-│   ├── database.md
-│   ├── business-rules.md
+│   ├── decisions/
 │   ├── api.md
+│   ├── architecture.md
+│   ├── business-rules.md
+│   ├── current-state.md
+│   ├── database.md
 │   ├── development.md
-│   ├── testing.md
 │   ├── roadmap.md
-│   ├── conflicts.md
-│   └── decisions/
-│       ├── 0001-use-poetry.md
-│       ├── 0002-session-cart.md
-│       ├── 0003-jwt-for-api.md
-│       ├── 0004-order-transaction.md
-│       ├── 0005-domain-model.md
-│       ├── 0006-soft-delete.md
-│       ├── 0007-username-user-login.md
-│       ├── 0008-payment-order.md
-│       ├── 0009-img-source.md
-│       ├── 0010-button.md
-│       ├── 0011-reviews-rating.md
-│       ├── 0012-rule-product.md
-│       ├── 0013-cart-web-routes.md
-│       ├── 0014-cart-service-layer.md
-│       ├── 0015-cart-merge-timing.md
-│       ├── 0016-cart-quantity-policy.md
-│       ├── 0017-session-cart-invalid-products.md
-│       ├── 0021-review-eligible-order-status.md
-│       ├── 0022-review-web-create-contract.md
-│       ├── 0023-api-architecture-boundary.md
-│       ├── 0024-product-api-contract.md
-│       ├── 0025-api-cart-contract.md
-│       ├── 0026-api-order-create-contract.md
-│       ├── 0027-api-registration-jwt.md
-│       ├── 0028-review-api-contract.md
-│       ├── 0029-api-error-permissions-contract.md
-│       ├── 0030-seed-data-policy.md
-│       ├── 0031-myshop-brand-and-runtime-assets.md
-│       ├── 0032-admin-ui-and-dashboard.md
-│       ├── 0033-payment-emulator.md
-│       ├── 0034-api-compatibility-routes.md
-│       ├── 0035-production-runtime.md
-│       ├── 0036-russian-demo-data.md
-│       └── 0037-analytics-service-layer.md
-│
+│   └── testing.md
 ├── tests/
 ├── docker/
-├── .env.example
-├── .gitignore
-├── .pre-commit-config.yaml
+├── .github/workflows/
 ├── docker-compose.yml
+├── docker-compose.prod.yml
 ├── Dockerfile
+├── Dockerfile.production
 ├── pyproject.toml
-├── poetry.lock
-├── manage.py
 └── README.md
 ```
 
-## Локальный запуск
-
-Локальный запуск предполагает, что PostgreSQL доступен по параметрам из `.env`.
-
-```bash
-poetry install
-cp .env.example .env
-poetry run python manage.py check
-poetry run python manage.py migrate
-poetry run python manage.py runserver
-```
-
-## Запуск через Docker
+## Быстрый старт через Docker
 
 ```bash
 cp .env.example .env
+# Заполните SECRET_KEY, DB_USER и DB_PASSWORD в .env.
 docker compose up -d --build
 ```
 
-Проверка контейнеров:
+Проверка:
 
 ```bash
 docker compose ps
@@ -150,39 +80,39 @@ docker compose exec web python manage.py check
 docker compose exec web python manage.py makemigrations --check --dry-run
 ```
 
-## Основные адреса
+Основные адреса:
 
+- Web: `http://localhost:8000/`
 - Admin: `http://localhost:8000/admin/`
 - Каталог: `http://localhost:8000/products/`
 - Корзина: `http://localhost:8000/cart/`
-- Checkout: `http://localhost:8000/checkout/`
-- Вход: `http://localhost:8000/accounts/login/`
-- Регистрация: `http://localhost:8000/accounts/register/`
-- Личный кабинет: `http://localhost:8000/account/`
-- История заказов: `http://localhost:8000/account/orders/`
 - Swagger UI: `http://localhost:8000/api/docs/`
 - OpenAPI schema: `http://localhost:8000/api/schema/`
 
-## REST API
+## Локальный запуск без Docker
 
-Основные endpoints:
+Требуется доступный PostgreSQL с параметрами из `.env`.
 
-- `GET /api/products/`
-- `GET /api/products/<slug>/`
-- `GET /api/products/<id>/`
-- `GET /api/cart/`
-- `POST /api/cart/`
-- `PATCH /api/cart/`
-- `DELETE /api/cart/`
-- `POST /api/cart/items/`
-- `POST /api/orders/`
-- `GET /api/orders/`
-- `POST /api/users/register/`
-- `POST /api/users/login/`
-- `GET /api/products/<slug>/reviews/`
-- `POST /api/products/<slug>/reviews/`
+```bash
+poetry install
+cp .env.example .env
+# Заполните SECRET_KEY, DB_USER и DB_PASSWORD в .env.
+poetry run python manage.py check
+poetry run python manage.py migrate
+poetry run python manage.py runserver
+```
 
-API-корзина, заказы и создание отзывов требуют JWT.
+## Конфигурация
+
+Настройки разделены на:
+
+- `config.settings.base` — общая конфигурация;
+- `config.settings.local` — локальная разработка;
+- `config.settings.production` — production-конфигурация.
+
+Основные переменные описаны в `.env.example`. Реальные значения `SECRET_KEY`, `DB_USER`, `DB_PASSWORD`, `EMAIL_HOST_PASSWORD`, `MYSHOP_DEMO_PASSWORD` и `LETSENCRYPT_EMAIL` не хранятся в репозитории.
+
+Для production обязательны внешние значения секретов и корректные `ALLOWED_HOSTS`/`CSRF_TRUSTED_ORIGINS`.
 
 ## Demo-данные
 
@@ -190,55 +120,89 @@ API-корзина, заказы и создание отзывов требую
 python manage.py seed_demo_data
 ```
 
-Безопасный reset demo-данных:
+По умолчанию demo-пользователи создаются без пригодного для входа пароля. Если нужен вход под demo-аккаунтом, задайте пароль только локально:
+
+```powershell
+$env:MYSHOP_DEMO_PASSWORD = Read-Host "Demo password"
+python manage.py seed_demo_data
+```
+
+Безопасный reset seed-owned данных:
 
 ```bash
 python manage.py seed_demo_data --reset --yes
 ```
 
-## Конфигурация
+Команда заблокирована для production-like окружений.
 
-Настройки разделены на:
+## REST API
 
-- `config.settings.base` — общие настройки;
-- `config.settings.local` — локальная разработка;
-- `config.settings.production` — production-настройки.
+JWT:
 
-Основные переменные окружения описаны в `.env.example`.
+- `POST /api/token/`
+- `POST /api/token/refresh/`
+- `POST /api/users/login/`
 
-## Документация
+Основные endpoints:
 
-- `docs/current-state.md` — текущий baseline проекта, проверки, остаточные риски и ближайшие реализуемые этапы.
-- `docs/architecture.md` — архитектура проекта и ответственность приложений.
-- `docs/database.md` — модель данных и связи между сущностями.
-- `docs/business-rules.md` — бизнес-правила домена.
-- `docs/api.md` — API, JWT и Swagger.
-- `docs/development.md` — запуск, конфигурация и troubleshooting.
-- `docs/testing.md` — стратегия тестирования.
-- `docs/roadmap.md` — чек-лист этапов проекта: сделано и предстоит.
-- `docs/conflicts.md` — текущие и закрытые архитектурные конфликты.
-- `docs/decisions/` — ADR: архитектурные решения.
+- `GET /api/products/`
+- `GET /api/products/<slug>/`
+- `GET /api/products/<id>/`
+- `GET /api/cart/`
+- `POST /api/cart/items/`
+- `POST /api/orders/`
+- `GET /api/orders/`
+- `POST /api/users/register/`
+- `GET /api/products/<slug>/reviews/`
+- `POST /api/products/<slug>/reviews/`
+
+API-корзина, заказы и создание отзывов требуют JWT.
 
 ## Проверки качества
 
 ```bash
-poetry run ruff check .
-poetry run ruff format .
-poetry run pytest
+poetry run python manage.py check
+poetry run python manage.py makemigrations --check --dry-run
+poetry run ruff check . --no-cache
+poetry run mypy src
+poetry run pytest -q -p no:cacheprovider
 ```
 
-## Статус разработки
+Миграции и состояние БД рекомендуется проверять через актуально пересобранный Docker Compose:
 
-Текущий прогресс и список следующих задач ведутся в `docs/roadmap.md`. Архитектурные противоречия фиксируются отдельно в `docs/conflicts.md`.
+```bash
+docker compose up -d --build
+docker compose exec web python manage.py makemigrations --check --dry-run
+```
 
-На текущем этапе реализованы публичные web-страницы:
+## Production runtime
 
-- `/` — главная страница;
-- `/products/` — список товаров;
-- `/products/<slug>/` — детальная страница товара;
-- `/cart/` — корзина;
-- `/checkout/` — оформление заказа для авторизованного пользователя;
-- `/account/` — личный кабинет;
-- `/account/orders/` — история заказов.
+Production-сценарий находится в `docker-compose.prod.yml` и использует:
 
-Текущие локальные проверки: `manage.py check`, `ruff check` и `pytest` проходят; последний полный прогон фиксируется в `docs/testing.md`.
+- `Dockerfile.production`;
+- Gunicorn для Django-приложения;
+- Nginx для static/media и reverse proxy;
+- certbot для Let's Encrypt;
+- отдельные volumes для static, media и сертификатов.
+
+Проверка конфигурации:
+
+```bash
+docker compose -f docker-compose.prod.yml config
+docker build -f Dockerfile.production -t myshop-web:production-ci .
+```
+
+Полная HTTPS-проверка требует реальный домен, DNS и открытые порты 80/443.
+
+## Документация
+
+- `docs/current-state.md` — текущий baseline и остаточные риски.
+- `docs/architecture.md` — архитектура и границы приложений.
+- `docs/database.md` — модель данных.
+- `docs/business-rules.md` — бизнес-правила.
+- `docs/api.md` — REST API, JWT и Swagger.
+- `docs/development.md` — запуск, конфигурация и troubleshooting.
+- `docs/testing.md` — стратегия и покрытие тестами.
+- `docs/roadmap.md` — этапы реализации.
+- `docs/conflicts.md` — открытые архитектурные вопросы.
+- `docs/decisions/` — ADR.
