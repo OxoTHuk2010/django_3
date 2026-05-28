@@ -57,11 +57,25 @@ def test_seed_demo_data_uses_password_from_env(monkeypatch):
 
 
 @override_settings(DEBUG=False)
-def test_seed_demo_data_is_blocked_when_debug_false():
-    """Создание demo-аккаунтов запрещено в production-like режиме."""
+def test_seed_demo_data_is_blocked_when_debug_false_without_explicit_flag(monkeypatch):
+    """Production-like seed запрещён без явного runtime-флага."""
+
+    monkeypatch.delenv("MYSHOP_DEMO_DATA_ALLOWED", raising=False)
 
     with pytest.raises(CommandError, match="outside local/demo environment"):
         call_command("seed_demo_data")
+
+
+@override_settings(DEBUG=False)
+def test_seed_demo_data_is_allowed_when_explicit_demo_flag_is_set(monkeypatch):
+    """Production-like seed разрешён только для управляемого demo-окружения."""
+
+    monkeypatch.setenv("MYSHOP_DEMO_DATA_ALLOWED", "1")
+    monkeypatch.delenv("MYSHOP_DEMO_PASSWORD", raising=False)
+
+    call_command("seed_demo_data")
+
+    assert User.objects.filter(username="demo_customer").exists()
 
 
 @override_settings(DEBUG=True)
@@ -73,10 +87,12 @@ def test_seed_demo_data_reset_requires_yes():
 
 
 @override_settings(DEBUG=False)
-def test_seed_demo_data_reset_is_blocked_when_debug_false():
+def test_seed_demo_data_reset_is_blocked_when_debug_false(monkeypatch):
     """Destructive reset запрещён при DEBUG=False."""
 
-    with pytest.raises(CommandError, match="outside local/demo environment"):
+    monkeypatch.setenv("MYSHOP_DEMO_DATA_ALLOWED", "1")
+
+    with pytest.raises(CommandError, match="when DEBUG=False"):
         call_command("seed_demo_data", reset=True, yes=True)
 
 

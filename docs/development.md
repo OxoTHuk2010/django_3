@@ -105,6 +105,14 @@ python manage.py seed_demo_data --reset --yes
 
 Команда reset заблокирована для production-like окружений.
 
+Для управляемого demo-production окружения обычный seed без reset может быть разрешён только явным runtime-флагом:
+
+```bash
+MYSHOP_DEMO_DATA_ALLOWED=1 python manage.py seed_demo_data
+```
+
+Deploy script дополнительно проверяет `MYSHOP_SEED_DEMO_DATA=1`, чтобы seed не запускался неявно.
+
 ## Production runtime
 
 Production-сценарий отделён от dev-сценария:

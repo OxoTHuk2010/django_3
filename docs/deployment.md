@@ -26,6 +26,7 @@ Workflow выполняет:
 - первый выпуск Let's Encrypt сертификата при отсутствии сертификата;
 - запуск production stack через Docker Compose;
 - `python manage.py check` внутри контейнера `web`;
+- идемпотентное наполнение demo-данными, если включён runtime-флаг;
 - HTTPS smoke-check `/api/schema/`.
 
 ## Первый HTTPS bootstrap
@@ -54,6 +55,15 @@ Workflow выполняет:
 - `LETSENCRYPT_EMAIL`
 
 Значения не должны храниться в репозитории.
+
+## Demo-данные
+
+Текущий deploy workflow создаёт demo-данные после успешного запуска `web` и проверки Django:
+
+- `MYSHOP_DEMO_DATA_ALLOWED=1` разрешает seed-команде работать в управляемом demo-production окружении;
+- `MYSHOP_SEED_DEMO_DATA=1` включает сам шаг seed в deploy script;
+- `seed_demo_data --reset --yes` в production-like окружении по-прежнему запрещён;
+- demo-пароли не передаются и не хранятся в репозитории, поэтому demo-пользователи создаются без пригодного для входа пароля, если отдельно не задан runtime-пароль.
 
 ## Требования к ВМ
 

@@ -64,6 +64,8 @@ jobs:
             printf '%s\n' "EMAIL_TIMEOUT=10"
             printf '%s\n' "DEFAULT_FROM_EMAIL=MyShop <noreply@$PRODUCTION_DOMAIN>"
             printf '%s\n' "MYSHOP_ADMIN_EMAILS=admin@$PRODUCTION_DOMAIN"
+            printf '%s\n' "MYSHOP_DEMO_DATA_ALLOWED=1"
+            printf '%s\n' "MYSHOP_SEED_DEMO_DATA=1"
             printf '%s\n' "NGINX_SERVER_NAME=$PRODUCTION_DOMAIN"
             printf '%s\n' "SECURE_SSL_REDIRECT=1"
             printf '%s\n' "SECURE_HSTS_SECONDS=31536000"

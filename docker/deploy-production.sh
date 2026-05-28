@@ -64,6 +64,7 @@ fi
 export NGINX_TEMPLATES_DIR="$HTTPS_TEMPLATE_DIR"
 compose up -d --build
 compose exec -T web python manage.py check
+compose exec -T web sh -c 'if [ "${MYSHOP_SEED_DEMO_DATA:-0}" = "1" ]; then python manage.py seed_demo_data; fi'
 
 if command -v curl >/dev/null 2>&1; then
     curl --fail --silent --show-error --location "https://$DOMAIN/api/schema/" >/dev/null

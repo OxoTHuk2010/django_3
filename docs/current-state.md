@@ -19,7 +19,7 @@
 - Отзывы создаются только при подтверждённой покупке и проходят модерацию.
 - REST API использует JWT, единый error contract и compatibility routes.
 - Swagger/OpenAPI подключён через drf-spectacular.
-- Demo-data создаётся через `seed_demo_data`; пароли не хранятся в репозитории.
+- Demo-data создаётся через `seed_demo_data`; production deploy наполняет demo-данные только через явные runtime-флаги, пароли не хранятся в репозитории.
 - Django Admin расширен branding, dashboard, actions и аналитикой.
 - Runtime UI и demo-data русскоязычные, технические ключи остаются ASCII.
 - CI выполняет проверки Django, миграций, Ruff, mypy, pytest и сборку Docker images.

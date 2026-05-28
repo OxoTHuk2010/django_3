@@ -18,6 +18,7 @@ from apps.reviews.models import Review
 from apps.users.models import User
 
 DEMO_PASSWORD_ENV = "MYSHOP_DEMO_PASSWORD"
+DEMO_DATA_ALLOWED_ENV = "MYSHOP_DEMO_DATA_ALLOWED"
 
 DEMO_CATEGORIES = (
     {
@@ -253,10 +254,14 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(f"{DEMO_PASSWORD_ENV} is not set; demo users were created with unusable passwords."))
 
     def _validate_seed_allowed(self) -> None:
-        """Не создавать demo-аккаунты в production-like окружении."""
+        """Разрешить production seed только через явный runtime-флаг."""
 
         environment = getenv("ENVIRONMENT", "").lower()
         settings_module = getenv("DJANGO_SETTINGS_MODULE", "").lower()
+        demo_data_allowed = getenv(DEMO_DATA_ALLOWED_ENV, "").lower() in {"1", "true", "yes", "on"}
+
+        if demo_data_allowed:
+            return
 
         if not settings.DEBUG or environment == "production" or "production" in settings_module:
             raise CommandError("Refusing to seed demo data outside local/demo environment.")
