@@ -60,6 +60,7 @@
 
                     <input type="hidden" name="q" value="{{ filter_state.q }}">
                     <input type="hidden" name="sort" value="{{ filter_state.sort }}">
+                    <input type="hidden" name="per_page" value="{{ filter_state.per_page }}">
                     <button class="button button--primary" type="submit">Применить</button>
                     <a class="button button--secondary" href="{% url 'catalog:product_list' %}">Сбросить</a>
                 </form>
@@ -83,6 +84,15 @@
                             </button>
                         {% endfor %}
                     </div>
+
+                    <label class="catalog-page-size">
+                        <span class="muted">На странице</span>
+                        <select class="Input" name="per_page" onchange="this.form.submit()">
+                            {% for page_size in per_page_options %}
+                                <option value="{{ page_size }}" {% if filter_state.per_page == page_size|stringformat:"s" %}selected{% endif %}>{{ page_size }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                 </form>
 
                 {% if products %}

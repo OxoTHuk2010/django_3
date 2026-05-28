@@ -148,9 +148,9 @@ def test_product_list_sorts_by_price_ascending(client, category):
 
 
 def test_product_list_paginates_products(client, category):
-    """Каталог ограничивает количество товаров на странице и отдаёт данные пагинации."""
+    """Каталог по умолчанию показывает 12 товаров на странице и отдаёт данные пагинации."""
 
-    for index in range(7):
+    for index in range(13):
         make_product(
             category,
             name=f"Paged Product {index}",
@@ -162,7 +162,45 @@ def test_product_list_paginates_products(client, category):
 
     assert response.status_code == 200
     assert response.context["is_paginated"] is True
-    assert len(response.context["products"]) == 6
+    assert len(response.context["products"]) == 12
+
+
+def test_product_list_allows_safe_page_size_options(client, category):
+    """Каталог разрешает пользователю выбрать только поддерживаемый размер страницы."""
+
+    for index in range(25):
+        make_product(
+            category,
+            name=f"Large Page Product {index}",
+            slug=f"large-page-product-{index}",
+            sku=f"SKU-LARGE-PAGE-{index}",
+        )
+
+    response = client.get(reverse("catalog:product_list"), {"per_page": "24"})
+
+    assert response.status_code == 200
+    assert response.context["is_paginated"] is True
+    assert len(response.context["products"]) == 24
+    assert response.context["filter_state"]["per_page"] == "24"
+
+
+def test_product_list_ignores_unsupported_page_size(client, category):
+    """Неподдерживаемый размер страницы сбрасывается к безопасному значению 12."""
+
+    for index in range(13):
+        make_product(
+            category,
+            name=f"Fallback Page Product {index}",
+            slug=f"fallback-page-product-{index}",
+            sku=f"SKU-FALLBACK-PAGE-{index}",
+        )
+
+    response = client.get(reverse("catalog:product_list"), {"per_page": "1000"})
+
+    assert response.status_code == 200
+    assert response.context["is_paginated"] is True
+    assert len(response.context["products"]) == 12
+    assert response.context["filter_state"]["per_page"] == "12"
 
 
 def test_product_detail_opens_public_product(client, product):

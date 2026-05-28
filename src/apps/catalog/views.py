@@ -1,9 +1,11 @@
 from django.views.generic import DetailView, ListView
 
 from apps.catalog.filters import (
+    PAGE_SIZE_OPTIONS,
     SORT_OPTIONS,
     apply_product_filters,
     get_catalog_filter_state,
+    get_catalog_page_size,
 )
 from apps.catalog.selectors import (
     get_active_category_queryset,
@@ -52,7 +54,12 @@ class ProductListView(ListView):
 
     template_name = "catalog/product_list.html"
     context_object_name = "products"
-    paginate_by = 6
+    paginate_by = 12
+
+    def get_paginate_by(self, queryset):
+        """Вернуть выбранный пользователем размер страницы каталога."""
+
+        return get_catalog_page_size(self.request.GET)
 
     def get_queryset(self):
         """Вернуть товары с учётом поиска, фильтров и сортировки."""
@@ -72,6 +79,7 @@ class ProductListView(ListView):
         context["categories"] = get_active_category_queryset()
         context["filter_state"] = get_catalog_filter_state(self.request.GET)
         context["sort_options"] = SORT_OPTIONS
+        context["per_page_options"] = PAGE_SIZE_OPTIONS
         context["querystring_without_page"] = query_params.urlencode()
         return context
 

@@ -360,6 +360,17 @@ header {
     gap: 8px;
 }
 
+.catalog-page-size {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.catalog-page-size .Input {
+    min-width: 88px;
+}
+
 .sort-button {
     padding: 8px;
     background-color: var(--background-grey);

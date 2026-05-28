@@ -7,6 +7,8 @@ from django.http import QueryDict
 from apps.catalog.models import Product
 
 DEFAULT_SORT = "newest"
+DEFAULT_PAGE_SIZE = 12
+PAGE_SIZE_OPTIONS = (12, 24, 36)
 
 SORT_OPTIONS: dict[str, tuple[str, str]] = {
     "newest": ("-created_at", "Сначала новые"),
@@ -63,7 +65,26 @@ def get_catalog_filter_state(params: QueryDict | dict[str, Any]) -> dict[str, st
         "price_min": str(params.get("price_min", "")).strip(),
         "price_max": str(params.get("price_max", "")).strip(),
         "sort": _get_sort_key(params),
+        "per_page": str(get_catalog_page_size(params)),
     }
+
+
+def get_catalog_page_size(params: QueryDict | dict[str, Any]) -> int:
+    """
+    Вернуть безопасный размер страницы каталога.
+
+    Пользователь может выбрать только значения из `PAGE_SIZE_OPTIONS`; остальные
+    значения игнорируются, чтобы GET-параметр не мог перегрузить страницу.
+    """
+
+    try:
+        page_size = int(str(params.get("per_page", DEFAULT_PAGE_SIZE)).strip())
+    except (TypeError, ValueError):
+        return DEFAULT_PAGE_SIZE
+
+    if page_size in PAGE_SIZE_OPTIONS:
+        return page_size
+    return DEFAULT_PAGE_SIZE
 
 
 def _get_sort_key(params: QueryDict | dict[str, Any]) -> str:
