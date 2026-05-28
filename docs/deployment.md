@@ -4,17 +4,9 @@
 
 ## Домен
 
-Production-домен:
+Production-домен не хранится в репозитории. Значение задаётся через GitHub Variable `PRODUCTION_DOMAIN`.
 
-```text
-myshop.iiitopm.ru
-```
-
-После успешного деплоя приложение должно быть доступно по HTTPS:
-
-```text
-https://myshop.iiitopm.ru/
-```
+После успешного деплоя приложение должно быть доступно по HTTPS на домене из `PRODUCTION_DOMAIN`.
 
 ## Workflow
 
@@ -50,9 +42,15 @@ Workflow выполняет:
 Добавить в GitHub Environment или Repository Secrets:
 
 - `PRODUCTION_SECRET_KEY`
+- `PRODUCTION_DB_PASSWORD`
+
+## Требуемые GitHub Variables
+
+Добавить в GitHub Environment или Repository Variables:
+
+- `PRODUCTION_DOMAIN`
 - `PRODUCTION_DB_NAME`
 - `PRODUCTION_DB_USER`
-- `PRODUCTION_DB_PASSWORD`
 - `LETSENCRYPT_EMAIL`
 
 Значения не должны храниться в репозитории.
@@ -71,7 +69,7 @@ Workflow выполняет:
 - `80/tcp`;
 - `443/tcp`.
 
-DNS-запись `myshop.iiitopm.ru` должна указывать на публичный IP ВМ.
+DNS-запись из `PRODUCTION_DOMAIN` должна указывать на публичный IP ВМ.
 
 ## Ручная проверка на ВМ
 
@@ -80,8 +78,8 @@ DNS-запись `myshop.iiitopm.ru` должна указывать на пуб
 ```bash
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 docker compose --env-file .env.production -f docker-compose.prod.yml exec web python manage.py check
-curl -I https://myshop.iiitopm.ru/
-curl -I https://myshop.iiitopm.ru/api/schema/
+curl -I "https://$PRODUCTION_DOMAIN/"
+curl -I "https://$PRODUCTION_DOMAIN/api/schema/"
 ```
 
 ## Откат

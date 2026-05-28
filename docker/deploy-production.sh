@@ -3,7 +3,7 @@ set -eu
 
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 ENV_FILE="${ENV_FILE:-.env.production}"
-DOMAIN="${DOMAIN:-myshop.iiitopm.ru}"
+DOMAIN="${DOMAIN:-}"
 LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}"
 HTTPS_TEMPLATE_DIR="${HTTPS_TEMPLATE_DIR:-./docker/nginx/templates}"
 BOOTSTRAP_TEMPLATE_DIR="${BOOTSTRAP_TEMPLATE_DIR:-./.deploy/nginx-templates}"
@@ -48,6 +48,11 @@ issue_certificate() {
 
 require_file "$ENV_FILE"
 require_file "$COMPOSE_FILE"
+
+if [ "$DOMAIN" = "" ]; then
+    echo "DOMAIN is required"
+    exit 1
+fi
 
 compose config --quiet
 compose build web

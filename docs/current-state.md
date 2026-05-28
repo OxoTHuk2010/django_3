@@ -24,7 +24,7 @@
 - Runtime UI и demo-data русскоязычные, технические ключи остаются ASCII.
 - CI выполняет проверки Django, миграций, Ruff, mypy, pytest и сборку Docker images.
 - Production runtime отделён от dev runtime.
-- Production deploy готовится через self-hosted GitHub Actions runner для домена `myshop.iiitopm.ru`.
+- Production deploy готовится через self-hosted GitHub Actions runner; параметры конкретной инсталляции задаются через GitHub Variables и Secrets.
 
 ## Проверенный baseline
 
