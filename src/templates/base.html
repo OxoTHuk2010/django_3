@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
-    <script src="{% static 'shop/js/main.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'shop/css/main.css' %}?v={{ STATIC_ASSET_VERSION|urlencode }}">
+    <script src="{% static 'shop/js/main.js' %}?v={{ STATIC_ASSET_VERSION|urlencode }}" defer></script>
 </head>
 <body class="{% if user.is_authenticated %}user-logged-in{% endif %}">
     <header>
