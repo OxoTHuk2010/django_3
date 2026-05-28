@@ -578,11 +578,13 @@ footer {
 .auth-page-wrapper {
     position: relative;
     width: 100%;
-    height: 757px;
+    min-height: calc(100vh - 100px);
+    height: auto;
+    padding: 64px 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .auth-background {
@@ -608,7 +610,7 @@ footer {
 }
 
 .auth-container--register {
-    width: 416px;
+    width: min(416px, 100%);
     height: auto;
     padding: 24px;
     background: var(--background-default);
@@ -618,6 +620,10 @@ footer {
     flex-direction: column;
     align-items: center;
     gap: 24px;
+}
+
+.auth-container--register .auth-form {
+    gap: 16px;
 }
 
 .Legend {
