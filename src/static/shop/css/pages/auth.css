@@ -10,10 +10,18 @@
     min-height: calc(100vh - 100px);
     height: auto;
     padding: 64px 20px;
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+.auth-page-wrapper--compact {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: visible;
+}
+
+.auth-page-wrapper--register {
+    display: block;
 }
 
 .auth-background {
@@ -36,6 +44,7 @@
 .auth-form-container {
     position: relative;
     z-index: 2;
+    margin: 0 auto;
 }
 
 .auth-container--register {
@@ -235,9 +244,12 @@
 
 @media (max-width: 760px) {
     .auth-page-wrapper {
-        align-items: flex-start;
         min-height: auto;
         padding: 32px 16px;
+    }
+
+    .auth-page-wrapper--compact {
+        align-items: flex-start;
     }
 
     .auth-container--login,
