@@ -1,0 +1,206 @@
+/* Макет: шапка, футер и состояние авторизованного пользователя. */
+/* Шапка */
+header {
+    width: 100%;
+    height: 100px;
+    padding: 32px 64px;
+    background-color: var(--background-header);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-container {
+    width: 100%;
+    max-width: 1312px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.header__logo img {
+    width: 26px;
+    height: 37.52px;
+    border-radius: 8px;
+}
+
+.header__logo .logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--black-main);
+}
+
+.header__nav ul {
+    width: 640px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__nav a {
+    padding: 8px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--black-main);
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.header__nav a:hover {
+    color: var(--dark-green);
+}
+
+.header__auth-buttons {
+    width: 192px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.button {
+    flex: 1 1 0;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+}
+
+.button--secondary {
+    background-color: var(--border-default);
+    border: 1px solid var(--border-dark-grey);
+    color: var(--black-main);
+}
+
+.button--secondary:hover {
+    background-color: var(--dark-green);
+    border: 2px solid var(--border-dark-grey);
+}
+
+.button--primary {
+    background-color: var(--green);
+    border: 1px solid var(--green);
+    color: var(--white-text);
+}
+
+.button--primary:hover {
+    background-color: var(--dark-green);
+    border-color: var(--dark-green);
+}
+/* Футер */
+footer {
+    width: 100%;
+    padding: 48px 64px 24px 64px;
+    background-color: var(--black-main);
+    color: var(--white-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+}
+
+.footer__hops-logo {
+    width: 483.92px;
+    height: 263.53px;
+}
+
+.footer__nav {
+    width: 640px;
+    height: 37px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer__nav ul {
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer__nav a {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--white-text);
+    padding: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.footer__nav a:hover {
+    opacity: 0.8;
+}
+
+.footer__copyright {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--white-text);
+}
+/*
+========================================
+    Header User Actions (Logged-in state)
+========================================
+*/
+.header__user-actions {
+    display: none;
+    align-items: center;
+    gap: 24px;
+}
+
+.user-icon, .cart-icon {
+    display: block;
+    width: 38px;
+    height: 38px;
+}
+
+.user-icon img, .cart-icon img {
+    width: 100%;
+    height: 100%;
+}
+
+.button--logout {
+    background-color: transparent;
+    border: 1px solid var(--border-dark-grey);
+    color: var(--black-main);
+    padding: 8px 16px;
+}
+
+/*
+========================================
+    Logic for Hiding/Showing Auth Blocks
+========================================
+*/
+
+body:not(.user-logged-in) .header__user-actions {
+    display: none;
+}
+body:not(.user-logged-in) .header__auth-buttons {
+    display: flex;
+}
+
+body.user-logged-in .header__auth-buttons {
+    display: none;
+}
+body.user-logged-in .header__user-actions {
+    display: flex;
+}

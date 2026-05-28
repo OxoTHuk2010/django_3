@@ -1,0 +1,248 @@
+/* Страницы авторизации: вход, регистрация и восстановление пароля. */
+/*
+========================================
+    Стили страницы регистрации
+========================================
+*/
+.auth-page-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - 100px);
+    height: auto;
+    padding: 64px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+}
+
+.auth-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.auth-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+.auth-form-container {
+    position: relative;
+    z-index: 2;
+}
+
+.auth-container--register {
+    width: min(416px, 100%);
+    height: auto;
+    padding: 24px;
+    background: var(--background-default);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.auth-container--register .auth-form {
+    gap: 16px;
+}
+
+.Legend {
+    width: 100%;
+    align-self: stretch;
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--black-main);
+}
+
+.auth-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.InputField {
+    width: 100%; /* 368px */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.InputField label {
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--black-main);
+    font-weight: 500;
+}
+
+.Input {
+    width: 100%;
+    height: 40px;
+    padding: 12px 16px;
+    background-color: var(--background-grey);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--black-main);
+}
+
+.Input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(2, 84, 45, 0.2);
+}
+
+
+.CheckboxField {
+    width: 100%;
+}
+
+.CheckboxField .checkbox-container {
+    margin-bottom: 0;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--black-main);
+}
+
+/* Группа кнопок */
+.ButtonGroup {
+    width: 100%;
+}
+
+.ButtonGroup .button {
+    width: 100%;
+    height: 40px;
+    padding: 12px;
+}
+
+/* Переключение между входом и регистрацией */
+.auth-switch {
+    margin-top: 0;
+    font-size: 14px;
+    color: var(--grey-text);
+}
+
+
+/*
+========================================
+    Стили страницы входа
+========================================
+*/
+
+.auth-container--login {
+    width: 416px;
+    padding: 24px;
+    background: var(--background-default);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.auth-container--login .auth-form {
+    gap: 24px;
+}
+
+/* Ссылка восстановления пароля */
+.TextLink {
+    width: 100%;
+    text-align: left;
+}
+
+.TextLink a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--green);
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+}
+
+.TextLink a:hover {
+    text-decoration: underline;
+}
+
+
+/*
+========================================
+    Стили восстановления пароля
+========================================
+*/
+.auth-container--forgot-password {
+    width: 416px;
+    padding: 24px;
+    background: var(--background-default);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-container--forgot-password .auth-form {
+    gap: 24px;
+}
+
+.ButtonGroup--center {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.ButtonGroup--center .button {
+    flex: 1 1 0;
+    padding: 12px;
+    height: 40px;
+}
+
+/* Кнопка отмены */
+.button--cancel {
+    background-color: transparent;
+    color: var(--black-main);
+    font-weight: 500;
+    border: 1px solid var(--border-dark-grey);
+}
+
+.button--cancel:hover {
+    background-color: var(--slate-200);
+}
+
+.auth-container--register .muted {
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.auth-container--register ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+@media (max-width: 760px) {
+    .auth-page-wrapper {
+        align-items: flex-start;
+        min-height: auto;
+        padding: 32px 16px;
+    }
+
+    .auth-container--login,
+    .auth-container--register,
+    .auth-container--forgot-password {
+        width: 100%;
+    }
+}

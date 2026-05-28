@@ -143,6 +143,19 @@ docker compose -f docker-compose.prod.yml exec web python manage.py check
 
 Production deploy через GitHub Actions описан в `docs/deployment.md`.
 
+## Frontend-статика
+
+Основная точка входа для стилей: `src/static/shop/css/main.css`.
+
+CSS разделён по назначению:
+
+- `core/base.css` — переменные, reset и общий контейнер;
+- `core/layout.css` — header, footer и состояние авторизованного пользователя в шапке;
+- `pages/auth.css` — страницы входа, регистрации и восстановления пароля;
+- `legacy.css` — оставшиеся стили витрины, которые переносятся в отдельные модули постепенно.
+
+Новые стили лучше добавлять в профильный файл, а не расширять `legacy.css`.
+
 ## Pre-commit
 
 ```bash
