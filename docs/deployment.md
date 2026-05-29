@@ -20,7 +20,7 @@ Deploy workflow находится в `.github/workflows/deploy-production.yml`.
 Workflow выполняет:
 
 - checkout репозитория;
-- создание локального `.env.production` из GitHub Secrets;
+- создание локального `.env.production` из GitHub Secrets с правами `0600`;
 - установку `STATIC_ASSET_VERSION` из текущего `GITHUB_SHA` для инвалидации браузерного кэша CSS и JS;
 - проверку `docker-compose.prod.yml`;
 - сборку production image;
@@ -56,6 +56,22 @@ Workflow выполняет:
 - `LETSENCRYPT_EMAIL`
 
 Значения не должны храниться в репозитории.
+
+## Runtime `.env.production`
+
+Workflow оставляет `.env.production` в рабочей директории runner на ВМ. Это нужно для ручных эксплуатационных команд после деплоя:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml exec web python manage.py check
+```
+
+Файл содержит production-секреты, включая `SECRET_KEY` и пароль БД, поэтому:
+
+- `.env.production` добавлен в `.gitignore`;
+- workflow создаёт файл с правами `0600`;
+- содержимое файла нельзя выводить в логи, отправлять в чат или коммитить;
+- при ротации секретов достаточно обновить GitHub Secrets и повторно запустить deploy.
 
 ## Demo-данные
 
